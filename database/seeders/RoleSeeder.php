@@ -9,10 +9,27 @@ class RoleSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('roles')->insert([
-            ['id' => 1, 'name' => 'superadmin', 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2, 'name' => 'admin_icodsa', 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 3, 'name' => 'admin_icicyta', 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        // Hapus semua data sebelumnya untuk menghindari duplikasi
+        DB::table('roles')->delete();
+        DB::statement('ALTER TABLE roles AUTO_INCREMENT = 1');
+
+        // DB::table('roles')->updateOrinsert([
+        //     ['id' => 1, 'name' => 'superadmin', 'created_at' => now(), 'updated_at' => now()],
+        //     ['id' => 2, 'name' => 'admin_icodsa', 'created_at' => now(), 'updated_at' => now()],
+        //     ['id' => 3, 'name' => 'admin_icicyta', 'created_at' => now(), 'updated_at' => now()],
+        // ]);
+        DB::table('roles')->updateOrInsert(
+            ['id' => 1], 
+            ['name' => 'superadmin', 'created_at' => now(), 'updated_at' => now()]
+        );
+        DB::table('roles')->updateOrInsert(
+            ['id' => 2], 
+            ['name' => 'admin_icodsa', 'created_at' => now(), 'updated_at' => now()]
+        );
+        DB::table('roles')->updateOrInsert(
+            ['id' => 3], 
+            ['name' => 'admin_icicyta', 'created_at' => now(), 'updated_at' => now()]
+        );
+        
     }
 }

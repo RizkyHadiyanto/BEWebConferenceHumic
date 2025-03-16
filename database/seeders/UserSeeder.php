@@ -30,9 +30,10 @@ class UserSeeder extends Seeder
         );
 
         // Admin ICODSA masuk ke tabel `admin_icodsa`
-        DB::table('admin_icodsa')->updateOrInsert(
+        User::updateOrInsert(
             ['email' => 'admin_icodsa@example.com'],
             [
+                'username' => 'admin_icodsa',
                 'name' => 'Admin ICODSA',
                 'password' => Hash::make('password123'),
                 'role_id' => $icodsaRole, // ✅ Gunakan role_id
@@ -42,9 +43,10 @@ class UserSeeder extends Seeder
         );
 
         // Admin ICICYTA masuk ke tabel `admin_icicyta`
-        DB::table('admin_icicyta')->updateOrInsert(
+        User::updateOrInsert(
             ['email' => 'admin_icicyta@example.com'],
             [
+                'username' => 'admin_icicyta',
                 'name' => 'Admin ICICYTA',
                 'password' => Hash::make('password123'),
                 'role_id' => $icicytaRole, // ✅ Gunakan role_id

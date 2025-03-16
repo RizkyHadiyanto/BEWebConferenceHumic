@@ -49,28 +49,53 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
+    // public function handle(Request $request, Closure $next, ...$roles)
+    // {
+        
+    //     // Cek apakah pengguna sudah login
+    //     if (!Auth::check()) {
+    //         // return response()->json(['message' => 'Unauthorized - Not Logged In'], 401);
+    //         dd($request->user());
+    //     }
+
+    //     // Ambil pengguna yang sedang login
+    //     //$user = Auth::user()->role->name ?? null; // Pastikan nama role tersedia
+    //     $user = Auth::user()->role_id;
+
+    //     // Pastikan user memiliki peran (role)
+    //     if (!$user->role) {
+    //         return response()->json(['message' => 'Unauthorized - No Role Assigned'], 403);
+    //     }
+
+    //     // Jika user adalah superadmin, izinkan akses tanpa batas
+    //     if ($user == 1) { // Super Admin bisa akses semua
+    //         return $next($request);
+    //     }
+
+    //     // Jika bukan superadmin, periksa apakah role user termasuk dalam daftar yang diizinkan
+    //     if (!in_array($user->role->name, $roles)) {
+    //         return response()->json(['message' => 'Unauthorized - Access Denied'], 403);
+    //     }
+
+    //     return $next($request);
+    // }
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        // Cek apakah pengguna sudah login
         if (!Auth::check()) {
             return response()->json(['message' => 'Unauthorized - Not Logged In'], 401);
         }
 
-        // Ambil pengguna yang sedang login
-        $user = Auth::user()->role->name ?? null; // Pastikan nama role tersedia
+        $user = Auth::user();
 
-        // Pastikan user memiliki peran (role)
-        if (!$user->role) {
+        if (!$user->role_id) {
             return response()->json(['message' => 'Unauthorized - No Role Assigned'], 403);
         }
 
-        // Jika user adalah superadmin, izinkan akses tanpa batas
-        if ($user->role->name === 'superadmin') {
-            return $next($request);
+        if ($user->role_id == 1) {
+            return $next($request); // Super Admin bisa akses semua
         }
 
-        // Jika bukan superadmin, periksa apakah role user termasuk dalam daftar yang diizinkan
-        if (!in_array($user->role->name, $roles)) {
+        if (!in_array($user->role_id, $roles)) {
             return response()->json(['message' => 'Unauthorized - Access Denied'], 403);
         }
 

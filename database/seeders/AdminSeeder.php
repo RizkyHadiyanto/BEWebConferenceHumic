@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
         );
 
         // Tambahkan Admin ICODSA ke `admin_icodsa`
-        DB::table('admin_icodsa')->updateOrInsert(
+        DB::table('users')->updateOrInsert(
             ['email' => 'admin_icodsa@example.com'],
             [
                 'name' => 'Admin ICODSA',
@@ -44,7 +44,7 @@ class AdminSeeder extends Seeder
         );
 
         // Tambahkan Admin ICICYTA ke `admin_icicyta`
-        DB::table('admin_icicyta')->updateOrInsert(
+        DB::table('users')->updateOrInsert(
             ['email' => 'admin_icicyta@example.com'],
             [
                 'name' => 'Admin ICICYTA',
