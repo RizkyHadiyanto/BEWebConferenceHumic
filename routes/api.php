@@ -4,7 +4,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// use App\Http\Controllers\SuperAdminMiddleware;
+
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\RoleMiddleware;
@@ -16,220 +16,114 @@ use App\Http\Controllers\VirtualAccountController;
 use App\Http\Controllers\BankTransferController;
 use App\Http\Controllers\LOAController;
 use App\Http\Controllers\InvoiceController;
-
-
 use App\Http\Controllers\SignatureController;
+use App\Http\Controllers\PaymentController;
 
 
-// ✅ Login & Logout
+// Login 
 Route::post('/login', [AuthController::class, 'login']);
 //Route::post('/logout', [AuthController::class, 'logout']);//middleware('auth:sanctum')->
 
 // Semua user bisa logout
-Route::middleware(['auth:sanctum'])->post('/logout', function(Request $request) {
-    return response()->json(['user' => $request->user()]);
-});
+// Route::middleware(['auth:sanctum'])->post('/logout', function(Request $request) {
+//     return response()->json(['user' => $request->user()]);
+// });
 
-// hanya superadmin yang bisa logout ?
+// hanya superadmin yang bisa logout 
 Route::middleware(['auth:sanctum', SuperAdminMiddleware::class])->group(function () {
     Route::post('/logout/superadmin', [AuthController::class, 'logoutsuperadmin']); //logout superadmin
     Route::post('/admin/icodsa/create', [AdminController::class, 'createAdminICODSA']);
     Route::post('/admin/icicyta/create', [AdminController::class, 'createAdminICICYTA']);
 
-    // Update dan delete admin icodsadan icicyta oleh superadmin 
+    // Update dan delete admin icodsa dan icicyta oleh superadmin 
     Route::put('/admin/update/{id}', [AdminController::class, 'updateAdmin']);
     Route::delete('/admin/delete/{id}', [AdminController::class, 'deleteAdmin']);
 
     Route::get('/admin/list', [AdminController::class, 'listAllAdmins']);
     Route::get('/admin/list/icodsa', [AdminController::class, 'listAdminsICODSA']);
     Route::get('/admin/list/icicyta', [AdminController::class, 'listAdminsICICYTA']);
-
-
 });
 
+// Hanya Super Admin (role_id = 1) bisa menambah, mengedit, dan menghapus
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1'])->group(function () {
+    
+    Route::post('/bank-transfer/create', [BankTransferController::class, 'createBankTransfer']);
+    Route::put('/bank-transfer/update/{id}', [BankTransferController::class, 'update']);
+    Route::delete('/bank-transfer/delete/{id}', [BankTransferController::class, 'destroy']);
+});
+
+// Admin ICODSA (role_id = 2) dan Admin ICICYTA (role_id = 3) bisa melihat bank transfer
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1,2,3'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/bank-transfer/list', [BankTransferController::class, 'index']); // Lihat semua bank transfer
+    Route::get('/bank-transfer/{id}', [BankTransferController::class, 'show']); // Lihat detail bank transfer
+});
+
+//  Super Admin (role_id = 1) bisa CRUD Virtual Account
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1'])->group(function () {
+    Route::post('/virtual-accounts/create', [VirtualAccountController::class, 'createVirtualAccount']);
+    Route::put('/virtual-accounts/update/{id}', [VirtualAccountController::class, 'update']);
+    Route::delete('/virtual-accounts/delete/{id}', [VirtualAccountController::class, 'destroy']);
+});
+
+//  Admin ICODSA (role_id = 2) dan Admin ICICYTA (role_id = 3) hanya bisa melihat daftar Virtual Account
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1,2,3'])->group(function () {
+    Route::get('/virtual-accounts/list', [VirtualAccountController::class, 'index']);
+    Route::get('/virtual-accounts/{id}', [VirtualAccountController::class, 'show']);
+});
+
+//  Super Admin (role_id = 1) bisa CRUD Signature
+Route::middleware(['auth:sanctum',RoleMiddleware::class . ':1'])->group(function () {
+    Route::post('/signatures/create', [SignatureController::class, 'store']);
+    Route::put('/signatures/update/{id}', [SignatureController::class, 'update']);
+    Route::delete('/signatures/delete/{id}', [SignatureController::class, 'destroy']);
+});
+
+//  Admin ICODSA (role_id = 2) dan Admin ICICYTA (role_id = 3) hanya bisa melihat daftar Signature
+Route::middleware(['auth:sanctum',RoleMiddleware::class . ':1,2,3'])->group(function () {
+    Route::get('/signatures', [SignatureController::class, 'index']);
+    Route::get('/signatures/{id}', [SignatureController::class, 'show']);
+});
+
+
+//  Hanya Super Admin bisa CRUD semua LOA
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1'])->group(function () {
+    Route::get('/loas', [LOAController::class, 'index']);
+    Route::post('/loas/create', [LOAController::class, 'store']);
+    Route::get('/loas/{id}', [LOAController::class, 'show']);
+    Route::put('/loas/update/{id}', [LOAController::class, 'update']);
+    Route::delete('/loas/delete/{id}', [LOAController::class, 'destroy']);
+});
+
+//  Admin ICODSA & ICICYTA hanya bisa CRUD LOA yang dibuat sendiri
 Route::middleware(['auth:sanctum', RoleMiddleware::class . ':2,3'])->group(function () {
-    Route::get('/loa', [LOAController::class, 'index']);
-    Route::get('/invoice', [InvoiceController::class, 'index']);
+    Route::get('/loas/admin', [LOAController::class, 'index']);
+    Route::post('/loas/create', [LOAController::class, 'store']);
+    Route::get('/loas/{id}', [LOAController::class, 'show']);
+    Route::put('/loas/update/{id}', [LOAController::class, 'update']);
+    Route::delete('/loas/delete/{id}', [LOAController::class, 'destroy']);
 });
 
+// Superadmin bisa melihat semua Invoice & Payment
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1'])->group(function () {
+    Route::get('/invoices', [InvoiceController::class, 'index']);
+    Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
+    Route::get('/payments', [PaymentController::class, 'index']);
+});
 
-// ✅ Super Admin Routes (Role ID = 1)
+// Admin hanya bisa CRUD invoice milik mereka
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1,2'])->group(function () {
+    Route::get('/invoices/icodsa/{id}', [InvoiceController::class, 'show']);
+    Route::put('/invoices/update/icodsa/{id}', [InvoiceController::class, 'update']);
+});
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1,3'])->group(function () {
+    Route::get('/invoices/icicyta/{id}', [InvoiceController::class, 'show']);
+    Route::put('/invoices/update/icicyta/ {id}', [InvoiceController::class, 'update']);
+});
 
-// Route::middleware(['auth:sanctum', SuperAdminMiddleware::class])->group(function () {
-//     //Route::post('/login', [AuthController::class, 'login']); //done->middleware('auth:sanctum');
-//     //Route::post('/logout', [AuthController::class, 'logout']); //done->middleware('auth:sanctum');
-
-//     //Route::post('/admin/icodsa/create', [AdminController::class, 'createAdminICODSA']);
-//     // Route::post('/admin/icicyta/create', [AdminController::class, 'createAdminICICYTA']);
-    
-//     // Route::get('/admin/list', [AdminController::class, 'listAllAdmins']);
-//     // Route::get('/admin/list/icodsa', [AdminController::class, 'listAdminsICODSA']);
-//     // Route::get('/admin/list/icicyta', [AdminController::class, 'listAdminsICICYTA']);
-
-//     Route::post('/bank-transfer', [BankTransferController::class, 'store']);
-//     Route::post('/virtual-account', [VirtualAccountController::class, 'store']);
-//     Route::post('/loa', [LOAController::class, 'store']);
-//     Route::post('/invoice', [InvoiceController::class, 'store']);
-// });
-
-// ✅ Admin ICODSA & ICICYTA (Role ID = 2 & 3) Bisa Lihat LOA & Invoice
-// Route::middleware(['auth:sanctum', RoleMiddleware::class . ':2,3'])->group(function () {
-//     Route::get('/loa', [LOAController::class, 'index']);
-//     Route::get('/invoice', [InvoiceController::class, 'index']);
-// });
-
-// Route untuk login
-
-// Route::post('/login', [AuthController::class, 'login']); //done
-//Route logout dengan middleware Sanctum
-// Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); //done
-
-// // Group API untuk Super Admin
-// Route::middleware(['auth:sanctum', SuperAdminMiddleware::class])->group(function () {
-
-//     Route::post('/login', [AuthController::class, 'login'])->middleware('auth:sanctum');; //done
-//     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');; //done
-    
-//     Route::post('/admin/icodsa/create', [AdminController::class, 'createAdminICODSA']); //done ->middleware('role:superadmin')
-
-//     Route::post('/admin/icicyta/create', [AdminController::class, 'createAdminICICYTA']); //done ->middleware('role:superadmin')
-    
-//     //List Super admin
-//     Route::get('/admin/list', [AdminController::class, 'listAllAdmins']);
-//     Route::get('/admin/list/icodsa', [AdminController::class, 'listAdminsICODSA']);
-//     Route::get('/admin/list/icicyta', [AdminController::class, 'listAdminsICICYTA']);
-
-//     // Route::post('/signature', [AdminController::class, 'createSignature']);
-//     // Route::post('/bank-transfer', [AdminController::class, 'createBankTransfer']);
-//     // Route::post('/virtual-account', [AdminController::class, 'createVirtualAccount']);
-//     // Route::post('/loa', [AdminController::class, 'createLOA']);
-//     // Route::post('/invoice', [AdminController::class, 'createInvoice']);
-// });
-
-// Route::middleware(['auth:sanctum', 'superadmin'])->group(function () {
-//     Route::apiResource('invoices', InvoiceController::class);
-//     Route::apiResource('bank-transfers', BankTransferController::class);
-//     Route::apiResource('virtual-accounts', VirtualAccountController::class);
-// });
-
-// Virtual Account
-// Middleware auth untuk memastikan hanya superadmin yang bisa mengakses
-
-// Group Admin ICODSA
-// Route::middleware(['auth:sanctum', RoleMiddleware::class . ':admin_icodsa'])->group(function () {
-//     Route::get('/dashboard/icodsa', function () {
-//         return response()->json(['message' => 'Welcome to ICODSA Dashboard']);
-//     });
-// });
-
-// // Group Admin ICICYTA
-// Route::middleware(['auth:sanctum', RoleMiddleware::class . ':admin_icicyta'])->group(function () {
-//     Route::get('/dashboard/icicyta', function () {
-//         return response()->json(['message' => 'Welcome to ICICYTA Dashboard']);
-//     });
-// });
-
-
-
-// Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1'])->group(function () {
-//     Route::post('/signature', [SignatureController::class, 'store']);
-//     Route::post('/bank-transfer', [BankTransferController::class, 'store']);
-//     Route::post('/virtual-account', [VirtualAccountController::class, 'store']);
-//     Route::post('/loa', [LOAController::class, 'store']);
-//     Route::post('/invoice', [InvoiceController::class, 'store']);
-// });
-
-// Route::middleware(['auth:sanctum', RoleMiddleware::class . ':2,3'])->group(function () {
-//     Route::get('/loa', [LOAController::class, 'index']);
-//     Route::get('/invoice', [InvoiceController::class, 'index']);
-// });
-
-// ✨ Super Admin (role_id = 1) bisa mengakses semua API
-// Route::middleware(['auth:sanctum', 'role:1'])->group(function () {
-//     Route::apiResource('invoices', InvoiceController::class);
-//     Route::apiResource('loas', LOAController::class);
-//     Route::apiResource('bank-transfers', BankTransferController::class);
-//     Route::apiResource('virtual-accounts', VirtualAccountController::class);
-//     Route::apiResource('admins', AdminController::class);
-// });
-
-// // ✨ Admin ICODSA (role_id = 2) hanya bisa mengakses Invoices & LOAs
-// Route::middleware(['auth:sanctum', 'role:1,2'])->group(function () {
-//     Route::apiResource('invoices', InvoiceController::class);
-//     Route::apiResource('loas', LOAController::class);
-// });
-
-// // ✨ Admin ICICYTA (role_id = 3) hanya bisa mengakses Invoices & LOAs
-// Route::middleware(['auth:sanctum', 'role:1,3'])->group(function () {
-//     Route::apiResource('invoices', InvoiceController::class);
-//     Route::apiResource('loas', LOAController::class);
-// });
-
-// Create API
-// Route::post('/admin/icodsa/create', [AdminController::class, 'createAdminICODSA']); //done
-// Route::post('/admin/icicyta/create', [AdminController::class, 'createAdminICICYTA']); //done
-
-// Bank Transfer
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::post('/bank-transfer/create', [BankTransferController::class, 'store']);
-//     Route::get('/bank-transfer/list', [BankTransferController::class, 'index']);
-// });
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::post('/virtual-account/create', [VirtualAccountController::class, 'store']);
-//     Route::get('/virtual-account/list', [VirtualAccountController::class, 'index']);
-// });
-
-
-// Super Admin dapat mengakses semua admin
-// Route::middleware(['auth:sanctum', 'role:superadmin'])->group(function () {
-//     Route::post('/admin/create', [AdminController::class, 'createAdmin']);
-//     Route::get('/admin/list', [AdminController::class, 'listAdmins']);
-// });
-
-// // Login Route
-// Route::get('/login', [AuthController::class, 'login'])->name('login');
-// Route::post('/login', [AuthController::class, 'authenticate']);
-
-// // Dashboard Redirect
-// Route::middleware(['auth', 'redirect.auth'])->group(function () {
-//     Route::get('/dashboard/icodsa', function () {
-//         return view('dashboard.icodsa');
-//     });
-
-//     Route::get('/dashboard/icicyta', function () {
-//         return view('dashboard.icicyta');
-//     });
-
-//     Route::get('/dashboard/superadmin', function () {
-//         return view('dashboard.superadmin');
-//     });
-// });
-
-// Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
-//     Route::get('/admin/icodsa', [AdminController::class, 'listICODSA']); // List Admin ICODSA
-//     Route::get('/admin/icicyta', [AdminController::class, 'listICICYTA']); // List Admin ICICYTA
-// });
-
-// Route::middleware(['auth:sanctum', 'role:superadmin,admin_icodsa'])->group(function () {
-//     Route::get('/admin/list', [AdminController::class, 'listAllAdmins']);
-// });
-
-// // Admin ICODSA hanya bisa melihat ICODSA
-// Route::middleware(['auth:sanctum', 'role:admin_icodsa'])->group(function () {
-//     Route::get('/icodsa/dashboard', [AdminController::class, 'icodsaDashboard']);
-// });
-
-// // Admin ICICYTA hanya bisa melihat ICICYTA
-// Route::middleware(['auth:sanctum', 'role:admin_icicyta'])->group(function () {
-//     Route::get('/icicyta/dashboard', [AdminController::class, 'icicytaDashboard']);
-// });
-
-
-
-
-// Route default untuk mengecek apakah API berjalan
-Route::get('/', function(){
-    return response()->json(['message' => 'API is running'], 200);
+// Semua user bisa melihat payment milik mereka
+Route::middleware(['auth:sanctum', RoleMiddleware::class . ':1,2,3'])->group(function () {
+    Route::get('/payments/{id}', [PaymentController::class, 'show']);
 });
 
 

@@ -34,31 +34,6 @@ return new class extends Migration
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
         });
 
-        // //  Buat Tabel Admin ICODSA
-        // Schema::create('admin_icodsa', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('name');
-        //     $table->string('email')->unique();
-        //     $table->string('password');
-        //     $table->unsignedBigInteger('role_id'); // Foreign key ke roles.id
-        //     $table->timestamps();
-
-        //     // Foreign Key Constraint
-        //     $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-        // });
-
-        // // Buat Tabel Admin ICICYTA
-        // Schema::create('admin_icicyta', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('name');
-        //     $table->string('email')->unique();
-        //     $table->string('password');
-        //     $table->unsignedBigInteger('role_id'); // Foreign key ke roles.id
-        //     $table->timestamps();
-
-        //     // **Foreign Key Constraint**
-        //     $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
-        // });
 
         // Buat Tabel Password Reset
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -82,6 +57,7 @@ return new class extends Migration
             $table->string('picture'); // Path gambar atau base64
             $table->string('nama_penandatangan');
             $table->string('jabatan_penandatangan');
+            $table->date('tanggal_dibuat');
             $table->timestamps();
         });
 
@@ -92,6 +68,8 @@ return new class extends Migration
             $table->string('account_holder_name');
             $table->string('bank_name');
             $table->string('bank_branch');
+            $table->uuid('token')->unique();// Unique identifier untuk keamanan
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
         // Buat Tabel bank_transfer
@@ -100,11 +78,13 @@ return new class extends Migration
             $table->string('nama_bank');
             $table->string('swift_code')->nullable();
             $table->string('recipient_name');
-            $table->string('beneficiary_bank_account_no');
+            $table->string('beneficiary_bank_account_no')->unique();
             $table->string('bank_branch');
             $table->string('bank_address')->nullable();
             $table->string('city')->nullable();
             $table->string('country');
+            $table->uuid('token')->unique(); // Unique identifier untuk keamanan
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade'); // User yang membuat
             $table->timestamps();
         });
         //Buat Tabel loas
@@ -115,23 +95,63 @@ return new class extends Migration
             $table->json('author_names'); // Simpan sebagai JSON (penulis 1-5)
             $table->enum('status', ['Accepted', 'Rejected']);
             $table->string('tempat_tanggal');
-            $table->unsignedBigInteger('signature_id'); // Pakai unsignedBigInteger untuk foreign key
+            $table->unsignedBigInteger('signature_id');
+            $table->unsignedBigInteger('created_by'); // Siapa yang membuat LOA
             $table->timestamps();
 
-            // Foreign key
+            // Foreign keys
             $table->foreign('signature_id')->references('id')->on('signatures')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
         });
-        //Buat Tabel invoices
+        // Schema::create('invoices', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('invoice_no')->unique();
+        //     $table->foreignId('loa_id')->constrained('loas')->onDelete('cascade');
+        //     $table->string('institution')->nullable();
+        //     $table->string('email')->nullable();
+        //     $table->date('date_of_issue')->nullable(); // ➕ Tambahan
+        //     $table->enum('presentation_type', ['Onsite', 'Online'])->nullable(); // ->default('Onsite'); 
+        //     $table->enum('member_type', ['IEEE Member', 'IEEE Non Member']);
+        //     $table->enum('author_type', ['Author', 'Student Author']);
+        //     $table->decimal('amount', 15, 2);
+        //     $table->enum('status', ['Pending', 'Paid'])->default('Pending');
+        //     $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
+        //     $table->unsignedBigInteger('created_by')->nullable();
+        //     $table->timestamps();
+        // });
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice_no')->unique();
             $table->foreignId('loa_id')->constrained('loas')->onDelete('cascade');
-            $table->string('institution');
-            $table->string('email');
-            $table->string('tempat_tanggal');
-            $table->foreignId('virtual_account_id')->constrained('virtual_accounts')->onDelete('cascade');
-            $table->foreignId('bank_transfer_id')->constrained('bank_transfers')->onDelete('cascade');
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+        
+            $table->string('institution')->nullable();          
+            $table->string('email')->nullable();                
+            $table->string('presentation_type')->nullable();    
+            $table->string('member_type')->nullable();          
+            $table->string('author_type')->nullable();          
+            $table->decimal('amount', 15, 2)->nullable();        
+        
+            $table->date('date_of_issue')->nullable();          
+            $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
+            $table->foreignId('virtual_account_id')->nullable(); 
+            $table->foreignId('bank_transfer_id')->nullable();
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->enum('status', ['Pending', 'Paid'])->default('Pending');
+            $table->timestamps();
+        });
+        
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
+            $table->string('invoice_no');
+            $table->string('received_from');
+            $table->decimal('amount', 15, 2);
+            $table->string('in_payment_of');
+            $table->date('payment_date');
+            
+            $table->string('paper_id')->nullable();
+            $table->string('paper_title')->nullable();
+            $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -146,10 +166,12 @@ return new class extends Migration
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('admin_icicyta');
         Schema::dropIfExists('admin_icodsa');
-        Schema::dropIfExists('users');
+        // Schema::dropIfExists('users');
         Schema::dropIfExists('roles');
         Schema::dropIfExists('signatures');
         Schema::dropIfExists('l_o_a_s');
+        Schema::dropIfExists('loas');
         Schema::dropIfExists('invoices');
+        Schema::dropIfExists('payments');
     }
 };

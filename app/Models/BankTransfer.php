@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
 
+
 class BankTransfer extends Authenticatable
 {
     use HasApiTokens, HasFactory;

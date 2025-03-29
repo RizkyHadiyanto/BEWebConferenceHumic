@@ -17,7 +17,16 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,        // ✅ Jalankan RoleSeeder lebih dulu
             UserSeeder::class,        // ✅ Tambahkan Super Admin ke `users`
-            AdminSeeder::class,       // ✅ Tambahkan Admin ICODSA & Admin ICICYTA
+            AdminSeeder::class, 
+            SignatureSeeder::class,
+            VirtualAccountSeeder::class,      // ✅ Tambahkan Admin ICODSA & Admin ICICYTA
+            BankTransferSeeder::class,
+            // LOASeeder::class,
+            // InvoiceSeeder::class,
+            // PaymentSeeder::class,
+
+            
+            
         ]);
         // // Pastikan role tersedia
         // $superadminRole = DB::table('roles')->where('name', 'superadmin')->value('id') 

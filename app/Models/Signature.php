@@ -12,7 +12,9 @@ class Signature extends Model
         'picture',
         'nama_penandatangan',
         'jabatan_penandatangan',
+        'tanggal_dibuat',
         'created_by', // Tambahkan kolom ini
+        
     ];
 
     public function user()

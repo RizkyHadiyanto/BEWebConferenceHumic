@@ -4,57 +4,162 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Signature;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controller;
+
+
 
 class SignatureController extends Controller
 {
-    // Upload Tanda Tangan (Gambar)
-    public function store(Request $request)
+    public function __construct()
     {
-        $request->validate([
-            'nama_penandatangan' => 'required|string',
-            'jabatan_penandatangan' => 'required|string',
-            'picture' => 'required|image|mimes:jpg,png,jpeg|max:2048'
-        ]);
-
-        if ($request->hasFile('picture')) {
-            $file = $request->file('picture');
-            $path = $file->store('signatures', 'public');
-        }
-
-        $signature = Signature::create([
-            'nama_penandatangan' => $request->nama_penandatangan,
-            'jabatan_penandatangan' => $request->jabatan_penandatangan,
-            'picture' => $path
-        ]);
-
-        return response()->json(['message' => 'Signature uploaded successfully', 'data' => $signature]);
+        $this->middleware('auth:sanctum');
     }
 
-    // // Simpan Tanda Tangan Digital (Base64)
-    // public function storeDigitalSignature(Request $request)
-    // {
-    //     $request->validate([
-    //         'nama_penandatangan' => 'required|string',
-    //         'jabatan_penandatangan' => 'required|string',
-    //         'picture' => 'required|string'
-    //     ]);
+    // 📌 List semua tanda tangan
+    public function index()
+    {
+        try {
+            $signatures = Signature::all();
+            return response()->json($signatures, 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching signatures', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+        }
+    }
 
-    //     // Simpan base64 sebagai file gambar
-    //     $image = $request->picture;
-    //     $image = str_replace('data:image/png;base64,', '', $image);
-    //     $image = str_replace(' ', '+', $image);
-    //     $imageName = 'signatures/' . uniqid() . '.png';
+    
+    public function store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'picture' => 'required|image|mimes:jpg,png,jpeg|max:2048',
+                'nama_penandatangan' => 'required|string',
+                'jabatan_penandatangan' => 'required|string',
+                'tanggal_dibuat' => 'nullable|date',
+            ]);
 
-    //     Storage::disk('public')->put($imageName, base64_decode($image));
+            if ($validator->fails()) {
+                Log::warning('Validation failed', ['errors' => $validator->errors()]);
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
 
-    //     $signature = Signature::create([
-    //         'nama_penandatangan' => $request->nama_penandatangan,
-    //         'jabatan_penandatangan' => $request->jabatan_penandatangan,
-    //         'picture' => $imageName
-    //     ]);
+            $path = $request->file('picture')->store('signatures', 'public');
 
-    //     return response()->json(['message' => 'Digital signature saved successfully', 'data' => $signature]);
-    // }
+            $signature = Signature::create([
+                'picture' => $path,
+                'nama_penandatangan' => $request->nama_penandatangan,
+                'jabatan_penandatangan' => $request->jabatan_penandatangan,
+                'tanggal_dibuat' =>  now()->format('Y-m-d')
+            ]);
+
+            Log::info('Signature created successfully', ['signature' => $signature]);
+
+            return response()->json([
+                'message' => 'Signature created successfully',
+                'signature' => $signature
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Error creating signature', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    
+    public function show($id)
+    {
+        try {
+            $signature = Signature::find($id);
+
+            if (!$signature) {
+                return response()->json(['message' => 'Signature not found'], 404);
+            }
+
+            return response()->json($signature, 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching signature', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    
+    public function update(Request $request, $id)
+    {
+        try {
+            $signature = Signature::find($id);
+
+            if (!$signature) {
+                return response()->json(['message' => 'Signature not found'], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+                'nama_penandatangan' => 'nullable|string',
+                'jabatan_penandatangan' => 'nullable|string',
+                'tanggal_dibuat' => 'nullable|date' // Validasi untuk tanggal
+            ]);
+
+            if ($validator->fails()) {
+                Log::warning('Validation failed', ['errors' => $validator->errors()]);
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+
+            if ($request->hasFile('picture')) {
+                if ($signature->picture && Storage::exists('public/' . $signature->picture)) {
+                    Storage::delete('public/' . $signature->picture);
+                }
+                $path = $request->file('picture')->store('signatures', 'public');
+                $signature->picture = $path;
+            }
+
+            if ($request->filled('nama_penandatangan')) {
+                $signature->nama_penandatangan = $request->nama_penandatangan;
+            }
+            if ($request->filled('jabatan_penandatangan')) {
+                $signature->jabatan_penandatangan = $request->jabatan_penandatangan;
+            }
+            if ($request->filled('tanggal_dibuat')) {
+                $signature->tanggal_dibuat = $request->tanggal_dibuat;
+            }
+
+            $signature->save();
+
+            Log::info('Signature updated successfully', ['signature' => $signature]);
+
+            return response()->json([
+                'message' => 'Signature updated successfully',
+                'signature' => $signature
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error updating signature', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    
+    public function destroy($id)
+    {
+        try {
+            $signature = Signature::find($id);
+
+            if (!$signature) {
+                return response()->json(['message' => 'Signature not found'], 404);
+            }
+
+            Storage::delete('public/' . $signature->picture);
+            $signature->delete();
+
+            Log::info('Signature deleted successfully', ['signature_id' => $id]);
+
+            return response()->json(['message' => 'Signature deleted successfully'], 200);
+        } catch (\Exception $e) {
+            Log::error('Error deleting signature', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
-

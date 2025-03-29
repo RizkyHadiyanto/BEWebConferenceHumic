@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\User;
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-// use App\Http\Controllers\Controller; 
+
 use Illuminate\Routing\Controller;
 
 use App\Models\Role;
@@ -20,26 +18,17 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Middleware\SuperAdminMiddleware;
 
-// use App\Models\AdminICICYTA;
-// use App\Models\AdminICODSA;
-// use App\Models\LOA;
-// use App\Models\Signature;
-// use App\Models\BankTransfer;
-// use App\Models\VirtualAccount;
-// use App\Models\Invoice;
-
 class AdminController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth:sanctum');
-        // $this->middleware(SuperAdminMiddleware::class);
         $this->middleware(SuperAdminMiddleware::class)->only(['createAdminICODSA', 'createAdminICICYTA']);
     }
     
     public function createAdminICODSA(Request $request)
     {
-        Log::info('Request data:', $request->all()); // Logging request input
+        Log::info('Request data:', $request->all()); 
 
         try {
             $validator = Validator::make($request->all(), [
@@ -54,7 +43,6 @@ class AdminController extends Controller
                 return response()->json(['errors' => $validator->errors()], 400);
             }
             
-            // Ambil Role Admin ICODSA
             $roleICODSA = Role::where('name', 'admin_icodsa')->first();
 
             if (!$roleICODSA) {
@@ -82,8 +70,6 @@ class AdminController extends Controller
         }
     }
 
-
-    // Tambah Admin ICICYTA
     public function createAdminICICYTA(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -200,9 +186,6 @@ class AdminController extends Controller
         }
     }
 
-
-
-    // LIST Admin ICODSA dan ICICYTA dengan SUPER ADMIN
     public function listAllAdmins()
     {
         $adminsIcodsa = User::all();
@@ -241,166 +224,6 @@ class AdminController extends Controller
             'admin_icicyta' => $adminsIcicyta,
         ], 200);
     }
-
-    // Tambah Signature
-    // public function createSignature(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'picture' => 'required|image|mimes:jpg,png,jpeg|max:2048',
-    //         'nama_penandatangan' => 'required|string',
-    //         'jabatan_penandatangan' => 'required|string',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 400);
-    //     }
-
-    //     $path = $request->file('picture')->store('signatures', 'public');
-
-    //     $signature = Signature::create([
-    //         'picture' => $path,
-    //         'nama_penandatangan' => $request->nama_penandatangan,
-    //         'jabatan_penandatangan' => $request->jabatan_penandatangan,
-    //     ]);
-
-    //     return response()->json(['message' => 'Signature created successfully', 'signature' => $signature], 201);
-    // }
-
-    // // Tambah Bank Transfer
-    // public function createBankTransfer(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'nama_bank' => 'required|string',
-    //         'swift_code' => 'nullable|string',
-    //         'recipient_name' => 'required|string',
-    //         'beneficiary_bank_account_no' => 'required|string',
-    //         'bank_branch' => 'required|string',
-    //         'bank_address' => 'nullable|string',
-    //         'city' => 'nullable|string',
-    //         'country' => 'required|string',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 400);
-    //     }
-
-    //     $bankTransfer = BankTransfer::create($request->all());
-
-    //     return response()->json(['message' => 'Bank Transfer created successfully', 'bank_transfer' => $bankTransfer], 201);
-    // }
-
-    // // Tambah Virtual Account
-    // public function createVirtualAccount(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'nomor_virtual_akun' => 'required|string|unique:virtual_accounts',
-    //         'account_holder_name' => 'required|string',
-    //         'bank_name' => 'required|string',
-    //         'bank_branch' => 'required|string',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 400);
-    //     }
-
-    //     $virtualAccount = VirtualAccount::create($request->all());
-
-    //     return response()->json(['message' => 'Virtual Account created successfully', 'virtual_account' => $virtualAccount], 201);
-    // }
-
-    // Tambah LOA
-    // public function createLOA(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'paper_id' => 'required|string|unique:loas',
-    //         'paper_title' => 'required|string',
-    //         'author_names' => 'required|array|min:1|max:5',
-    //         'status' => 'required|in:Accepted,Rejected',
-    //         'tempat_tanggal' => 'required|string',
-    //         'signature_id' => 'required|exists:signatures,id',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 400);
-    //     }
-
-    //     $loa = LOA::create($request->all());
-
-    //     return response()->json(['message' => 'LOA created successfully', 'loa' => $loa], 201);
-    // }
-
-    // Tambah Invoice
-    // public function createInvoice(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'loa_id' => 'required|exists:loas,id',
-    //         'institution' => 'required|string',
-    //         'email' => 'required|email',
-    //         'tempat_tanggal' => 'required|string',
-    //         'virtual_account_id' => 'required|exists:virtual_accounts,id',
-    //         'bank_transfer_id' => 'required|exists:bank_transfers,id',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 400);
-    //     }
-
-    //     $invoice = Invoice::create($request->all());
-
-    //     return response()->json(['message' => 'Invoice created successfully', 'invoice' => $invoice], 201);
-    // }
-
-    
-
-
-    /**
-     * Menampilkan daftar Admin ICICYTA
-     */
-    // public function listICICYTA()
-    // {
-    //     $admins = AdminICICYTA::all();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Daftar Admin ICICYTA',
-    //         'data' => $admins
-    //     ], 200);
-    // }
-
-    // Hanya Super Admin yang bisa melihat semua admin
-    // public function listAdmins()
-    // {
-    //     // Ambil data Admin ICODSA dan ICICYTA dari tabel berbeda
-    //     $adminsIcodsa = DB::table('admin_icodsa')->get();
-    //     $adminsIcicyta = DB::table('admin_icicyta')->get();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Daftar Admin',
-    //         'admin_icodsa' => $adminsIcodsa,
-    //         'admin_icicyta' => $adminsIcicyta
-    //     ]);
-    // }
-
-    // Dashboard Admin ICODSA
-    // public function icodsaDashboard()
-    // {
-    //     if (Auth::user()->role !== 'admin_icodsa') {
-    //         return response()->json(['message' => 'Unauthorized'], 403);
-    //     }
-
-    //     return response()->json(['message' => 'Welcome to ICODSA Dashboard']);
-    // }
-
-    // // Dashboard Admin ICICYTA
-    // public function icicytaDashboard()
-    // {
-    //     if (Auth::user()->role !== 'admin_icicyta') {
-    //         return response()->json(['message' => 'Unauthorized'], 403);
-    //     }
-
-    //     return response()->json(['message' => 'Welcome to ICICYTA Dashboard']);
-    // }
 
 
 }
