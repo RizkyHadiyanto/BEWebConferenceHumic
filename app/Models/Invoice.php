@@ -38,7 +38,6 @@ class Invoice extends Model
         return $this->belongsTo(LOA::class, 'loa_id');
     }
 
-
     public function signature()
     {
         return $this->belongsTo(Signature::class);

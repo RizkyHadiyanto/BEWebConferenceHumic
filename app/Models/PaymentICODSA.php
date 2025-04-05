@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Signature;
+use App\Models\InvoiceICODSA;
 
-class Payment extends Model
+class PaymentICODSA extends Model
 {
     use HasFactory;
 
+    protected $table = 'payments_icodsa'; // Tabel yang digunakan
+
     protected $fillable = [
-        'invoice_id',
         'invoice_no',
         'received_from',
         'amount',
@@ -22,13 +27,13 @@ class Payment extends Model
         'created_by',
     ];
 
-    // Relasi ke Invoice (Payment berasal dari Invoice)
+    // Contoh relasi ke InvoiceICODSA (berdasarkan invoice_no)
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class, 'invoice_no', 'invoice_no');
+        return $this->belongsTo(InvoiceICODSA::class, 'invoice_no', 'invoice_no');
     }
 
-    // Relasi ke Signature (Tanda tangan yang dipakai di Payment)
+    // Relasi ke Signature
     public function signature()
     {
         return $this->belongsTo(Signature::class);
@@ -39,5 +44,4 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    
 }

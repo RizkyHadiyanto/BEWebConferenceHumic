@@ -16,7 +16,7 @@ class VirtualAccountController extends Controller
         $this->middleware('auth:sanctum');
     }
 
-    // ✅ List semua virtual account (hanya bisa dilihat oleh Super Admin, Admin ICODSA, Admin ICICYTA)
+    //  List semua virtual account 
     public function index()
     {
         $user = Auth::user();
@@ -27,7 +27,7 @@ class VirtualAccountController extends Controller
         return response()->json(VirtualAccount::all(), 200);
     }
 
-    // ✅ Buat virtual account baru (Hanya bisa dilakukan oleh Super Admin)
+    //  Buat virtual account baru (Hanya bisa dilakukan oleh Super Admin)
     public function createVirtualAccount(Request $request)
     {
         try {
@@ -36,7 +36,7 @@ class VirtualAccountController extends Controller
                 return response()->json(['message' => 'Unauthorized - Super Admin Only'], 403);
             }
 
-            // ✅ Validasi input
+            //  Validasi input
             $validator = Validator::make($request->all(), [
                 'nomor_virtual_akun' => 'required|string|unique:virtual_accounts,nomor_virtual_akun',
                 'account_holder_name' => 'required|string',
@@ -49,7 +49,7 @@ class VirtualAccountController extends Controller
                 return response()->json(['errors' => $validator->errors()], 400);
             }
 
-            // ✅ Buat Virtual Account
+            //  Buat Virtual Account
             $virtualAccount = VirtualAccount::create([
                 'nomor_virtual_akun' => $request->nomor_virtual_akun,
                 'account_holder_name' => $request->account_holder_name,
@@ -73,7 +73,7 @@ class VirtualAccountController extends Controller
         }
     }
 
-    // ✅ Lihat virtual account berdasarkan ID
+    //  Lihat virtual account berdasarkan ID
     public function show($id)
     {
         $virtualAccount = VirtualAccount::find($id);
@@ -85,7 +85,7 @@ class VirtualAccountController extends Controller
         return response()->json($virtualAccount, 200);
     }
 
-    // ✅ Update virtual account (Hanya bisa dilakukan oleh Super Admin)
+    //  Update virtual account (Hanya bisa dilakukan oleh Super Admin)
     public function update(Request $request, $id)
     {
         $user = Auth::user();
@@ -99,7 +99,7 @@ class VirtualAccountController extends Controller
             return response()->json(['message' => 'Virtual Account not found'], 404);
         }
 
-        // ✅ Validasi input sebelum update
+        //  Validasi input sebelum update
         $validator = Validator::make($request->all(), [
             'nomor_virtual_akun' => 'sometimes|string|unique:virtual_accounts,nomor_virtual_akun,'.$id,
             'account_holder_name' => 'sometimes|string',
@@ -116,7 +116,7 @@ class VirtualAccountController extends Controller
         return response()->json(['message' => 'Virtual Account updated successfully', 'virtual_account' => $virtualAccount], 200);
     }
 
-    // ✅ Hapus virtual account (Hanya bisa dilakukan oleh Super Admin)
+    //  Hapus virtual account (Hanya bisa dilakukan oleh Super Admin)
     public function destroy($id)
     {
         $user = Auth::user();

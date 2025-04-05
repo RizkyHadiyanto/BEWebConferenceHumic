@@ -109,7 +109,6 @@ class AdminController extends Controller
                 return response()->json(['message' => 'Admin not found'], 404);
             }
 
-            // Pastikan admin yang di-update adalah Admin ICODSA atau Admin ICICYTA
             if (!in_array($admin->role->name, ['admin_icodsa', 'admin_icicyta'])) {
                 return response()->json(['message' => 'Unauthorized - Only Admin ICODSA or ICICYTA can be updated'], 403);
             }
@@ -188,14 +187,15 @@ class AdminController extends Controller
 
     public function listAllAdmins()
     {
-        $adminsIcodsa = User::all();
-        $adminsIcicyta = User::all();
+        // $adminsIcodsa = User::all();
+        // $adminsIcicyta = User::all();
+        $admin = User::all();
 
         return response()->json([
             'success' => true,
             'message' => 'Daftar Semua Admin',
-            'admin_icodsa' => $adminsIcodsa,
-            'admin_icicyta' => $adminsIcicyta
+            'admin' => $admin,
+            // 'admin_icicyta' => $adminsIcicyta
         ], 200);
     }
 

@@ -66,29 +66,6 @@ class LOA extends Model
         });
     }
 
-    // protected static function generateInvoice($loa)
-    // {
-    //     $invoiceNumber = Invoice::count() + 1;
-    //     $invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/ICODSA/" . date('Y');
-
-    //     Invoice::create([
-    //         'invoice_no' => $invoiceCode,
-    //         'loa_id' => $loa->id,
-    //         'institution' => 'Some Institution',
-    //         'email' => 'example@domain.com',
-    //         'tempat_tanggal' => now(),
-    //         'presentation_type' => 'Onsite', // default
-    //         'member_type' => 'IEEE Member', // default
-    //         'author_type' => 'Author', // default
-    //         'amount' => 360.00, // default
-    //         'date_of_issue' => now(),
-    //         'virtual_account_id' => 1,
-    //         'bank_transfer_id' => 1,
-    //         'created_by' => $loa->created_by,
-    //         'signature_id' => $loa->signature_id,
-    //         'status' => 'Pending',
-    //     ]);
-    // }
     protected static function generateInvoice($loa)
     {
         try {
@@ -127,6 +104,31 @@ class LOA extends Model
             Log::error(' Error generating invoice for LOA', ['error' => $e->getMessage()]);
         }
     }
+
+    // protected static function generateInvoice($loa)
+    // {
+    //     $invoiceNumber = Invoice::count() + 1;
+    //     $invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/ICODSA/" . date('Y');
+
+    //     Invoice::create([
+    //         'invoice_no' => $invoiceCode,
+    //         'loa_id' => $loa->id,
+    //         'institution' => 'Some Institution',
+    //         'email' => 'example@domain.com',
+    //         'tempat_tanggal' => now(),
+    //         'presentation_type' => 'Onsite', // default
+    //         'member_type' => 'IEEE Member', // default
+    //         'author_type' => 'Author', // default
+    //         'amount' => 360.00, // default
+    //         'date_of_issue' => now(),
+    //         'virtual_account_id' => 1,
+    //         'bank_transfer_id' => 1,
+    //         'created_by' => $loa->created_by,
+    //         'signature_id' => $loa->signature_id,
+    //         'status' => 'Pending',
+    //     ]);
+    // }
+    
 
     //TERBARU generateInvoice
 
