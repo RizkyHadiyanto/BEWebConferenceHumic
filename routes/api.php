@@ -1,9 +1,5 @@
 <?php
 
-
-
-
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,14 +16,12 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminController;
 use App\Models\Invoice;
 
-// ===========================
+
 // AUTH
-// ===========================
 Route::post('/login', [AuthController::class, 'login']);
 
-// ===========================
+
 // SUPERADMIN
-// ===========================
 Route::middleware(['auth:sanctum', RoleMiddleware::class.':1'])->group(function () {
     
     // Logout superadmin
@@ -76,9 +70,9 @@ Route::middleware(['auth:sanctum', RoleMiddleware::class.':1'])->group(function 
     // (Jika perlu: store, update, destroy, dsb.)
 });
 
-// ===========================
-// ADMIN ICODSA (role_id=2)
-// ===========================
+
+// ADMIN ICODSA 
+
 
 Route::middleware(['auth:sanctum',RoleMiddleware::class.':1,2,3'])->group(function(){
     // Bank Transfer (read only)
@@ -146,9 +140,8 @@ Route::middleware(['auth:sanctum', RoleMiddleware::class.':2'])->group(function(
     Route::delete('/icodsa/payments/delete/{id}', [PaymentController::class, 'destroy']);
 });
 
-// ===========================
+
 // ADMIN ICICYTA (role_id=3)
-// ===========================
 
 Route::middleware(['auth:sanctum',RoleMiddleware::class.':1,3'])->group(function(){
     //Loa ICICYTA (read only)

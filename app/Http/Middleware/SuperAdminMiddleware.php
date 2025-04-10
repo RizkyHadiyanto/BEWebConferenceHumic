@@ -28,9 +28,9 @@ class SuperAdminMiddleware
             return response()->json(['message' => 'Unauthorized - Super Admin Only'], 403);
         }
 
-        if ($user->role_id !== 1) {
-            return redirect('/dashboard/icodsa');
-        }
+        // if ($user->role_id !== 1) {
+        //     return redirect('/dashboard/icodsa');
+        // }
 
         return $next($request);
 
