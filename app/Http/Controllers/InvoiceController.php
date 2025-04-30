@@ -197,17 +197,58 @@ class InvoiceController extends Controller
         }
     }
 
+    // public function index()
+    // {
+    //     try {
+    //         $invoiceModel = $this->getInvoiceModel();
+    //         $invoices = $invoiceModel::all();
+    //         return response()->json($invoices, 200);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error fetching invoice', ['error' => $e->getMessage()]);
+    //         return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+    //     }
+    // }
+
     public function index()
     {
         try {
             $invoiceModel = $this->getInvoiceModel();
-            $invoices = $invoiceModel::all();
-            return response()->json($invoices, 200);
+            if (!$invoiceModel) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+
+            // Jika ingin membatasi "hanya data yang dibuat oleh user ini":
+            $data = $invoiceModel::where('created_by', Auth::id())->get();
+
+            // Jika superadmin boleh lihat semua data, admin pun boleh lihat data lain:
+            //$data = $invoiceModel::all();
+
+            return response()->json($data, 200);
         } catch (\Exception $e) {
-            Log::error('Error fetching invoice', ['error' => $e->getMessage()]);
+            Log::error('Error fetching Loa', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
+    // public function index()
+    // {    
+    //     try {
+    //         $invoiceModel = $this->getInvoiceModel();
+    //         if (!$invoiceModel) {
+    //             return response()->json(['message' => 'Unauthorized'], 401);
+    //         }
+
+    //         // Jika ingin membatasi "hanya data yang dibuat oleh user ini":
+    //         $data = $invoiceModel::where('created_by', Auth::id())->get();
+
+    //         // Jika superadmin boleh lihat semua data, admin pun boleh lihat data lain:
+    //         //$data = $loaModel::all();
+
+    //         return response()->json($data, 200);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error fetching Loa', ['error' => $e->getMessage()]);
+    //         return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+    //     }
+    // }
 
     public function show($id)
     {
@@ -223,9 +264,9 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
+    
 
-    // ... method update, destroy, dsb. mirip dengan LoaController
-    // Tinggal menyesuaikan logic validasi & createPayment
+    
     /**
      * Update Invoice
      */

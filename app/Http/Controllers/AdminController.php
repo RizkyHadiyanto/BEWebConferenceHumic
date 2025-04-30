@@ -98,6 +98,7 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Admin ICICYTA created successfully', 'admin' => $admin], 201);
     }
+    
     public function updateAdmin(Request $request, $id)
     {
         Log::info("Update request received for Admin ID: $id", $request->all());
@@ -109,7 +110,7 @@ class AdminController extends Controller
                 return response()->json(['message' => 'Admin not found'], 404);
             }
 
-            if (!in_array($admin->role->name, ['admin_icodsa', 'admin_icicyta'])) {
+            if (!in_array($admin->role->name, ['superadmin','admin_icodsa', 'admin_icicyta'])) {
                 return response()->json(['message' => 'Unauthorized - Only Admin ICODSA or ICICYTA can be updated'], 403);
             }
 

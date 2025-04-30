@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
                 'username' => 'superadmin',
                 'name' => 'Super Admin',
                 'password' => Hash::make('password123'),
-                'role_id' => $superadminRole, // ✅ Gunakan role_id
+                'role_id' => $superadminRole, 
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -35,8 +35,8 @@ class UserSeeder extends Seeder
             [
                 'username' => 'admin_icodsa',
                 'name' => 'Admin ICODSA',
-                'password' => Hash::make('password123'),
-                'role_id' => $icodsaRole, // ✅ Gunakan role_id
+                'password' => 'password123',
+                'role_id' => $icodsaRole, 
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -48,8 +48,8 @@ class UserSeeder extends Seeder
             [
                 'username' => 'admin_icicyta',
                 'name' => 'Admin ICICYTA',
-                'password' => Hash::make('password123'),
-                'role_id' => $icicytaRole, // ✅ Gunakan role_id
+                'password' => 'password123',
+                'role_id' => $icicytaRole, 
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
