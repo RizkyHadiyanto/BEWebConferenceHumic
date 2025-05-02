@@ -275,7 +275,8 @@ class LoaController extends Controller
             Log::error('Error creating Invoice', ['error' => $e->getMessage()]);
         }
     }
-        public function downloadLOA($id)
+    
+    public function downloadLOA($id)
     {
         try {
             $loaModel = $this->getLoaModel();
