@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Routing\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 // class InvoiceController extends Controller
@@ -383,6 +384,43 @@ class InvoiceController extends Controller
             Log::info("Payment auto-generated for invoice: " . $invoice->invoice_no);
         } catch (\Exception $e) {
             Log::error('Error creating Payment', ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function downloadInvoice($id)
+    {
+        try {
+            $invoiceModel = $this->getInvoiceModel();
+            $invoice = $invoiceModel::with('loa')->find($id);
+    
+            if (!$invoice) {
+                return response()->json(['message' => 'Invoice not found'], 404);
+            }
+    
+            if (Auth::user()->role_id != 1 && $invoice->created_by != Auth::id()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+    
+            // Pilih view berdasarkan role_id
+            switch (Auth::user()->role_id) {
+                case 2:
+                    $view = 'pdf.icodsainvoice';
+                    break;
+                case 3:
+                    $view = 'pdf.icicytainvoice';
+                    break;
+                default:
+                    $view = 'pdf.invoice'; // Superadmin atau fallback
+            }
+    
+            $filename = 'Invoice_' . str_replace(['/', '\\'], '-', $invoice->invoice_no) . '.pdf';
+            $pdf = Pdf::loadView($view, compact('invoice'));
+    
+            return $pdf->download($filename);
+    
+        } catch (\Exception $e) {
+            Log::error('Error generating Invoice PDF', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
 }
