@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 // class PaymentController extends Controller
 // {
@@ -142,6 +143,43 @@ class PaymentController extends Controller
             return response()->json(['message' => 'payment deleted'], 200);
         } catch (\Exception $e) {
             Log::error('Error deleting payment', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function downloadPayment($id)
+    {
+        try {
+            $paymentModel = $this->getPaymentModel();
+            $payment = $paymentModel::find($id);
+    
+            if (!$payment) {
+                return response()->json(['message' => 'Payment not found'], 404);
+            }
+    
+            if (Auth::user()->role_id != 1 && $payment->created_by != Auth::id()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+    
+            // Pilih view berdasarkan role
+            switch (Auth::user()->role_id) {
+                case 2:
+                    $view = 'pdf.icodsapayment';
+                    break;
+                case 3:
+                    $view = 'pdf.icicytapayment';
+                    break;
+                default:
+                    $view = 'pdf.payment'; // superadmin atau fallback
+            }
+    
+            $filename = 'Payment_' . str_replace(['/', '\\'], '-', $payment->invoice_no) . '.pdf';
+            $pdf = Pdf::loadView($view, compact('payment'));
+    
+            return $pdf->download($filename);
+    
+        } catch (\Exception $e) {
+            Log::error('Error generating Payment PDF', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
