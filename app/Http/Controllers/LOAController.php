@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Routing\Controller;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 // Model utama (superadmin)
@@ -272,6 +273,45 @@ class LoaController extends Controller
             Log::info("Invoice Created Successfully in [{$invoiceModel}] => ID: " . $invoice->id);
         } catch (\Exception $e) {
             Log::error('Error creating Invoice', ['error' => $e->getMessage()]);
+        }
+    }
+        public function downloadLOA($id)
+    {
+        try {
+            $loaModel = $this->getLoaModel();
+            if (!$loaModel) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+    
+            $loa = $loaModel::find($id);
+            if (!$loa) {
+                return response()->json(['message' => 'LOA not found'], 404);
+            }
+    
+            if (Auth::user()->role_id != 1 && $loa->created_by != Auth::id()) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+    
+            // Pilih view berdasarkan role
+            switch (Auth::user()->role_id) {
+                case 2:
+                    $view = 'pdf.icodsaloa';
+                    break;
+                case 3:
+                    $view = 'pdf.icicytaloa';
+                    break;
+                default:
+                    $view = 'pdf.loa'; // Superadmin atau fallback
+            }
+    
+            $filename = 'LOA_' . str_replace(['/', '\\'], '-', $loa->paper_id) . '.pdf';
+            $pdf = Pdf::loadView($view, compact('loa'));
+    
+            return $pdf->download($filename);
+    
+        } catch (\Exception $e) {
+            Log::error('Error generating LOA PDF', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
 }
