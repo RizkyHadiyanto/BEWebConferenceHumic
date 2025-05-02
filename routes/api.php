@@ -121,10 +121,13 @@ Route::middleware(['auth:sanctum', RoleMiddleware::class.':2'])->group(function(
     Route::post('/icodsa/loas/create', [LoaController::class, 'store']);
     Route::put('/icodsa/loas/update/{id}', [LoaController::class, 'update']);
     Route::delete('/icodsa/loas/delete/{id}', [LoaController::class, 'destroy']);
+    Route::get('/icodsa/loas/download/{id}', [LoaController::class, 'downloadLOA']);
     Route::put('/icodsa/invoices/update/{id}', [InvoiceController::class, 'update']);
     Route::delete('/icodsa/invoices/delete/{id}', [InvoiceController::class, 'destroy']);
+    Route::get('/icodsa/invoice/download/{id}', [InvoiceController::class, 'downloadInvoice']);
     Route::put('/icodsa/payments/update/{id}', [PaymentController::class, 'update']);
     Route::delete('/icodsa/payments/delete/{id}', [PaymentController::class, 'destroy']);
+    Route::get('/icodsa/payment/download/{id}', [PaymentController::class, 'downloadPayment']);
 });
 
 
@@ -159,10 +162,13 @@ Route::middleware(['auth:sanctum', RoleMiddleware::class.':3'])->group(function(
     Route::post('/icicyta/loas/create', [LoaController::class, 'store']);
     Route::put('/icicyta/loas/update/{id}', [LoaController::class, 'update']);
     Route::delete('/icicyta/loas/delete/{id}', [LoaController::class, 'destroy']);
+    Route::get('/icicyta/loas/download/{id}', [LoaController::class, 'downloadLOA']);
     Route::put('/icicyta/invoices/update/{id}', [InvoiceController::class, 'update']);
     Route::delete('/icicyta/invoices/delete/{id}', [InvoiceController::class, 'destroy']);
+    Route::get('/icicyta/invoice/download/{id}', [InvoiceController::class, 'downloadInvoice']);
     Route::put('/icicyta/payments/update/{id}', [PaymentController::class, 'update']);
     Route::delete('/icicyta/payments/delete/{id}', [PaymentController::class, 'destroy']);
+    Route::get('/icicyta/payment/download/{id}', [PaymentController::class, 'downloadPayment']);
 });
 
 
