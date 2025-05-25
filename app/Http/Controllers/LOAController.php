@@ -142,11 +142,12 @@ class LoaController extends Controller
                 'nama_penandatangan' => $signature->nama_penandatangan,
                 'jabatan_penandatangan' => $signature->jabatan_penandatangan,
             ]);
+            $loa->save();
 
-            // // Jika LOA berstatus 'Accepted', generate Invoice
-            // if ($loa->status === 'Accepted') {
-            //     $this->createInvoice($loa); 
-            // }
+            // Jika LOA berstatus 'Accepted', generate Invoice
+            if ($loa->status === 'Accepted') {
+                $this->createInvoice($loa); 
+            }
 
             return response()->json([
                 'message' => 'LOA created successfully',
@@ -283,7 +284,7 @@ class LoaController extends Controller
                 $roleBasedCode,
                 date('Y')
             );
-
+            $signature = Signature::find($loa->signature_id);
             // Simpan invoice di tabel yang sesuai
             $invoice = $invoiceModel::create([
                 'invoice_no'   => $invoiceNumber,
@@ -298,7 +299,12 @@ class LoaController extends Controller
                 // dsb.
 
                 // Status invoice default 'Unpaid' misalnya
-                'status'       => 'Pending'
+                'status'       => 'Pending',
+                'picture'          => $signature->picture,
+                'nama_penandatangan'=> $signature->nama_penandatangan,
+                'jabatan_penandatangan' => $signature->jabatan_penandatangan,
+                'created_by'       => $loa->created_by,
+                'signature_id'     => $loa->signature_id,
             ]);
 
             Log::info("Invoice Created Successfully in [{$invoiceModel}] => ID: " . $invoice->id);

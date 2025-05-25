@@ -93,7 +93,7 @@ class PaymentController extends Controller
                 'payment_date'  => 'nullable|date',
                 'paper_id'      => 'nullable|string|max:255',
                 'paper_title'   => 'nullable|string|max:255',
-                'signature_id'  => 'required|exists:signatures,id',
+                'signature_id'  => 'nullable|exists:signatures,id',
             ]);
 
             if ($validator->fails()) {
@@ -101,10 +101,18 @@ class PaymentController extends Controller
             }
 
             // Simpan file jika ada
+            // $signature = Signature::find($request->signature_id);
+            if ($request->filled('signature_id')) {
             $signature = Signature::find($request->signature_id);
             if (!$signature) {
                 return response()->json(['message' => 'Signature not found'], 404);
             }
+
+    $payment->signature_id = $signature->id;
+    $payment->picture = $signature->picture;
+    $payment->nama_penandatangan = $signature->nama_penandatangan;
+    $payment->jabatan_penandatangan = $signature->jabatan_penandatangan;
+}
 
             // Update data
             $payment->fill($request->only([
@@ -114,8 +122,18 @@ class PaymentController extends Controller
                 'payment_date',
                 'paper_id',
                 'paper_title',
-                'signature_id'
+                // 'signature_id'
             ]));
+
+            if ($request->filled('signature_id')) {
+                $signature = Signature::find($request->signature_id);
+                if ($signature) {
+                    $payment->signature_id = $signature->id;
+                    $payment->picture = $signature->picture;
+                    $payment->nama_penandatangan = $signature->nama_penandatangan;
+                    $payment->jabatan_penandatangan = $signature->jabatan_penandatangan;
+                }
+            }
 
             $payment->save();
 
@@ -176,7 +194,7 @@ class PaymentController extends Controller
                     $view = 'pdf.payment'; // superadmin atau fallback
             }
     
-            $filename = 'Payment_' . str_replace(['/', '\\'], '-', $payment->invoice_no) . '.pdf';
+            $filename = 'Payment_' . str_replace(['/', '\\'], '-', $payment->payment_no) . '.pdf';
             $pdf = Pdf::loadView($view, compact('payment'));
     
             return $pdf->download($filename);

@@ -62,63 +62,63 @@ class LoaICICYTA extends Model
      * Jika Anda ingin menyalin logika generate invoice otomatis untuk ICICYTA,
      * silakan sesuaikan.
      */
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::created(function ($loa) {
-            if ($loa->status === 'Accepted') {
-                static::generateInvoice($loa);
-            }
-        });
+    //     static::created(function ($loa) {
+    //         if ($loa->status === 'Accepted') {
+    //             static::generateInvoice($loa);
+    //         }
+    //     });
 
-        static::updated(function ($loa) {
-            if ($loa->status === 'Accepted') {
-                if (!InvoiceICICYTA::where('loa_id', $loa->id)->exists()) {
-                    static::generateInvoice($loa);
-                }
-            }
-        });
-    }
+    //     static::updated(function ($loa) {
+    //         if ($loa->status === 'Accepted') {
+    //             if (!InvoiceICICYTA::where('loa_id', $loa->id)->exists()) {
+    //                 static::generateInvoice($loa);
+    //             }
+    //         }
+    //     });
+    // }
 
-    protected static function generateInvoice($loa)
-    {
-        try {
-            $user = User::find($loa->created_by);
-            $role_id = $user?->role_id ?? null;
+    // protected static function generateInvoice($loa)
+    // {
+    //     try {
+    //         $user = User::find($loa->created_by);
+    //         $role_id = $user?->role_id ?? null;
 
-            // Tentukan kode konferensi berdasarkan role_id
-            $conferenceCode = match ($role_id) {
-                3 => 'ICICYTA',
-                default => 'CONF',
-            };
-            $invoiceNumber = InvoiceICICYTA::count() + 1;
-            // $invoiceCode  = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT).'/INV/ICICYTA/'.date('Y');
-            $invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/{$conferenceCode}/" . date('Y');
-            $signature = Signature::find($loa->signature_id);
-            InvoiceICICYTA::create([
-                'invoice_no'       => $invoiceCode,
-                'loa_id'           => $loa->id,
-                'institution'      => null,
-                'email'            => null,
-                'presentation_type'=> null,
-                'member_type'      => null,
-                'author_names'     => $loa->author_names,
-                'author_type'      => null,
-                'amount'           => null,
-                'date_of_issue'    => now(),
-                'virtual_account_id' => null,
-                'bank_transfer_id'   => null,
-                'status'           => 'Pending',
-                'picture'          => $signature?->picture,
-                'nama_penandatangan'=> $signature?->nama_penandatangan,
-                'jabatan_penandatangan' => $signature?->jabatan_penandatangan,
-                'created_by'       => $loa->created_by,
-                'signature_id'     => $loa->signature_id,
+    //         // Tentukan kode konferensi berdasarkan role_id
+    //         $conferenceCode = match ($role_id) {
+    //             3 => 'ICICYTA',
+    //             default => 'CONF',
+    //         };
+    //         $invoiceNumber = InvoiceICICYTA::count() + 1;
+    //         // $invoiceCode  = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT).'/INV/ICICYTA/'.date('Y');
+    //         $invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/{$conferenceCode}/" . date('Y');
+    //         $signature = Signature::find($loa->signature_id);
+    //         InvoiceICICYTA::create([
+    //             'invoice_no'       => $invoiceCode,
+    //             'loa_id'           => $loa->id,
+    //             'institution'      => null,
+    //             'email'            => null,
+    //             'presentation_type'=> null,
+    //             'member_type'      => null,
+    //             'author_names'     => $loa->author_names,
+    //             'author_type'      => null,
+    //             'amount'           => null,
+    //             'date_of_issue'    => now(),
+    //             'virtual_account_id' => null,
+    //             'bank_transfer_id'   => null,
+    //             'status'           => 'Pending',
+    //             'picture'          => $signature?->picture,
+    //             'nama_penandatangan'=> $signature?->nama_penandatangan,
+    //             'jabatan_penandatangan' => $signature?->jabatan_penandatangan,
+    //             'created_by'       => $loa->created_by,
+    //             'signature_id'     => $loa->signature_id,
                 
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error generating invoice for LOA ICICYTA', ['error' => $e->getMessage()]);
-        }
-    }
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error generating invoice for LOA ICICYTA', ['error' => $e->getMessage()]);
+    //     }
+    // }
 }
