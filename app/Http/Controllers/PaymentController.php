@@ -4,44 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Payment;
+use App\Models\Signature;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Validator;
 
-// class PaymentController extends Controller
-// {
-//     public function __construct()
-//     {
-//         $this->middleware('auth:sanctum');
-//     }
-
-//     public function index()
-//     {
-//         try {
-//             return response()->json(Payment::all(), 200);
-//         } catch (\Exception $e) {
-//             Log::error('Error retrieving Payments', ['error' => $e->getMessage()]);
-//             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
-//         }
-//     }
-
-//     public function show($id)
-//     {
-//         try {
-//             $payment = Payment::find($id);
-//             if (!$payment) {
-//                 return response()->json(['message' => 'Payment not found'], 404);
-//             }
-
-//             return response()->json($payment, 200);
-//         } catch (\Exception $e) {
-//             Log::error('Error retrieving Payment', ['error' => $e->getMessage()]);
-//             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
-//         }
-//     }
-// }
 
 // Model khusus
 use App\Models\PaymentICODSA;
@@ -119,14 +88,12 @@ class PaymentController extends Controller
             // Validasi input
             $validator = Validator::make($request->all(), [
                 'received_from' => 'nullable|string|max:255',
-                'amount' => 'nullable|numeric|min:0',
+                'amount'        => 'nullable|numeric|min:0',
                 'in_payment_of' => 'nullable|string|max:255',
-                'payment_date' => 'nullable|date',
-                'paper_id' => 'nullable|string|max:255',
-                'paper_title' => 'nullable|string|max:255',
-                'nama_penandatangan' => 'nullable|string|max:255',
-                'jabatan_penandatangan' => 'nullable|string|max:255',
-                'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'payment_date'  => 'nullable|date',
+                'paper_id'      => 'nullable|string|max:255',
+                'paper_title'   => 'nullable|string|max:255',
+                'signature_id'  => 'required|exists:signatures,id',
             ]);
 
             if ($validator->fails()) {
@@ -134,9 +101,9 @@ class PaymentController extends Controller
             }
 
             // Simpan file jika ada
-            if ($request->hasFile('picture')) {
-                $path = $request->file('picture')->store('payment_pictures', 'public');
-                $payment->picture = $path;
+            $signature = Signature::find($request->signature_id);
+            if (!$signature) {
+                return response()->json(['message' => 'Signature not found'], 404);
             }
 
             // Update data
@@ -147,8 +114,7 @@ class PaymentController extends Controller
                 'payment_date',
                 'paper_id',
                 'paper_title',
-                'nama_penandatangan',
-                'jabatan_penandatangan',
+                'signature_id'
             ]));
 
             $payment->save();

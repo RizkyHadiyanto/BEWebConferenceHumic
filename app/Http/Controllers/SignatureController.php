@@ -85,59 +85,6 @@ class SignatureController extends Controller
         }
     }
 
-    
-    // public function update(Request $request, $id)
-    // {
-    //     try {
-    //         $signature = Signature::find($id);
-
-    //         if (!$signature) {
-    //             return response()->json(['message' => 'Signature not found'], 404);
-    //         }
-
-    //         $validator = Validator::make($request->all(), [
-    //             'picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-    //             'nama_penandatangan' => 'nullable|string',
-    //             'jabatan_penandatangan' => 'nullable|string',
-    //             'tanggal_dibuat' => 'nullable|date' // Validasi untuk tanggal
-    //         ]);
-
-    //         if ($validator->fails()) {
-    //             Log::warning('Validation failed', ['errors' => $validator->errors()]);
-    //             return response()->json(['errors' => $validator->errors()], 400);
-    //         }
-
-    //         if ($request->hasFile('picture')) {
-    //             if ($signature->picture && Storage::exists('public/' . $signature->picture)) {
-    //                 Storage::delete('public/' . $signature->picture);
-    //             }
-    //             $path = $request->file('picture')->store('signatures', 'public');
-    //             $signature->picture = $path;
-    //         }
-
-    //         if ($request->filled('nama_penandatangan')) {
-    //             $signature->nama_penandatangan = $request->nama_penandatangan;
-    //         }
-    //         if ($request->filled('jabatan_penandatangan')) {
-    //             $signature->jabatan_penandatangan = $request->jabatan_penandatangan;
-    //         }
-    //         if ($request->filled('tanggal_dibuat')) {
-    //             $signature->tanggal_dibuat = $request->tanggal_dibuat;
-    //         }
-
-    //         $signature->save();
-
-    //         Log::info('Signature updated successfully', ['signature' => $signature]);
-
-    //         return response()->json([
-    //             'message' => 'Signature updated successfully',
-    //             'signature' => $signature
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         Log::error('Error updating signature', ['error' => $e->getMessage()]);
-    //         return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
-    //     }
-    // }
     public function update(Request $request, $id)
 {
     try {
