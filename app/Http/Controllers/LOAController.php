@@ -133,7 +133,7 @@ class LoaController extends Controller
                 'signature_id'   => $request->signature_id,
                 'created_by'     => $user->id,
                 'theme_conference' => $request->theme_conference,
-                'place_date_conference' => $request->date_place_conference,
+                'place_date_conference' => $request->place_date_conference,
                 'picture' => $signature->picture,
                 'nama_penandatangan' => $signature->nama_penandatangan,
                 'jabatan_penandatangan' => $signature->jabatan_penandatangan,
