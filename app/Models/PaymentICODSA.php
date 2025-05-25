@@ -25,6 +25,9 @@ class PaymentICODSA extends Model
         'paper_title',
         'signature_id',
         'created_by',
+        'picture',
+        'nama_penandatangan',
+        'jabatan_penandatangan'
     ];
 
     // Contoh relasi ke InvoiceICODSA (berdasarkan invoice_no)
@@ -43,5 +46,11 @@ class PaymentICODSA extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    protected $appends = ['picture_url'];
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
     }
 }

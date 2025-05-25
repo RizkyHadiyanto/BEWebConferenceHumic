@@ -95,7 +95,12 @@ return new class extends Migration
             $table->json('author_names'); // Simpan sebagai JSON (penulis 1-5)
             $table->enum('status', ['Accepted', 'Rejected']);
             $table->string('tempat_tanggal');
+            $table->string('picture')->nullable(); // Path gambar atau base64
+            $table->string('nama_penandatangan')->nullable();
+            $table->string('jabatan_penandatangan')->nullable();
             $table->unsignedBigInteger('signature_id');
+            $table->string('theme_conference')->nullable();
+            $table->string('place_date_conference')->nullable();
             $table->unsignedBigInteger('created_by'); // Siapa yang membuat LOA
             $table->timestamps();
 
@@ -119,6 +124,9 @@ return new class extends Migration
             $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
             $table->foreignId('virtual_account_id')->nullable();
             $table->foreignId('bank_transfer_id')->nullable();
+            $table->string('picture')->nullable(); // Path gambar atau base64
+            $table->string('nama_penandatangan')->nullable();
+            $table->string('jabatan_penandatangan')->nullable();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['Pending', 'Paid'])->default('Pending');
             $table->timestamps();
@@ -128,12 +136,15 @@ return new class extends Migration
         Schema::create('payments_icodsa', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_no');
-            $table->string('received_from');
+            $table->string('received_from')->nullable();
             $table->decimal('amount', 15, 2);
             $table->string('in_payment_of');
             $table->date('payment_date');
             $table->string('paper_id')->nullable();
             $table->string('paper_title')->nullable();
+            $table->string('picture')->nullable(); // Path gambar atau base64
+            $table->string('nama_penandatangan')->nullable();
+            $table->string('jabatan_penandatangan')->nullable();
             $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
@@ -147,8 +158,13 @@ return new class extends Migration
             $table->json('author_names'); // Simpan sebagai JSON (penulis 1-5)
             $table->enum('status', ['Accepted', 'Rejected']);
             $table->string('tempat_tanggal');
+            $table->string('picture')->nullable(); // Path gambar atau base64
+            $table->string('nama_penandatangan')->nullable();
+            $table->string('jabatan_penandatangan')->nullable();
             $table->unsignedBigInteger('signature_id');
             $table->unsignedBigInteger('created_by'); // Siapa yang membuat LOA
+            $table->string('theme_conference')->nullable();
+            $table->string('place_date_conference')->nullable();
             $table->timestamps();
             // Foreign keys
             $table->foreign('signature_id')->references('id')->on('signatures')->onDelete('cascade');
@@ -170,6 +186,9 @@ return new class extends Migration
             $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
             $table->foreignId('virtual_account_id')->nullable();
             $table->foreignId('bank_transfer_id')->nullable();
+            $table->string('picture')->nullable(); // Path gambar atau base64
+            $table->string('nama_penandatangan')->nullable();
+            $table->string('jabatan_penandatangan')->nullable();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['Pending', 'Paid'])->default('Pending');
             $table->timestamps();
@@ -179,12 +198,15 @@ return new class extends Migration
         Schema::create('payments_icicyta', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_no');
-            $table->string('received_from');
+            $table->string('received_from')->nullable();
             $table->decimal('amount', 15, 2);
             $table->string('in_payment_of');
             $table->date('payment_date');
             $table->string('paper_id')->nullable();
             $table->string('paper_title')->nullable();
+            $table->string('picture')->nullable(); // Path gambar atau base64
+            $table->string('nama_penandatangan')->nullable();
+            $table->string('jabatan_penandatangan')->nullable();
             $table->foreignId('signature_id')->constrained('signatures')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();

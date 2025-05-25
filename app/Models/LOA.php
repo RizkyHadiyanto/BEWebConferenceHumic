@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\Signature;
 use Illuminate\Support\Facades\Log;
 
-class LOA extends Model
+class Loa extends Model
 {
     use HasFactory;
 
@@ -23,6 +23,11 @@ class LOA extends Model
         'tempat_tanggal',
         'signature_id',
         'created_by',
+        'theme_conference',
+        'place_date_conference',
+        'picture',
+        'nama_penandatangan',
+        'jabatan_penandatangan'
     ];
 
     protected $casts = [
@@ -46,6 +51,14 @@ class LOA extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    protected $appends = ['picture_url'];
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
+    }
+    
+
     protected static function boot()
     {
         parent::boot();
@@ -89,11 +102,15 @@ class LOA extends Model
                 'email' => null,
                 'presentation_type' => null,
                 'member_type' => null,
+                'author_names'     => $loa->author_names,
                 'author_type' => null,
                 'amount' => null,
                 'date_of_issue' => now(),
                 'virtual_account_id' => null,
                 'bank_transfer_id' => null,
+                'picture'          => null,
+                'nama_penandatangan'=> null,
+                'jabatan_penandatangan' => null,
                 'created_by' => $loa->created_by,
                 'signature_id' => $loa->signature_id,
                 'status' => 'Pending',

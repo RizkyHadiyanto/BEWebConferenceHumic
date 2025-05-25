@@ -9,7 +9,7 @@ use App\Models\Signature;
 use App\Models\InvoiceICODSA;
 use Illuminate\Support\Facades\Log;
 
-class LOAICODSA extends Model
+class LoaICODSA extends Model
 {
     use HasFactory;
 
@@ -23,6 +23,11 @@ class LOAICODSA extends Model
         'tempat_tanggal',
         'signature_id',
         'created_by',
+        'theme_conference',
+        'place_date_conference',
+        'picture',
+        'nama_penandatangan',
+        'jabatan_penandatangan'
     ];
 
     protected $casts = [
@@ -46,6 +51,13 @@ class LOAICODSA extends Model
     {
         return $this->hasOne(InvoiceICODSA::class, 'loa_id');
     }
+    
+    protected $appends = ['picture_url'];
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
+    }
+    
     
     /**
      * Contoh jika Anda ingin menyalin logika generate invoice otomatis,
@@ -93,6 +105,7 @@ class LOAICODSA extends Model
                 'email'            => null,
                 'presentation_type'=> null,
                 'member_type'      => null,
+                'author_names'     => $loa->author_names,
                 'author_type'      => null,
                 'amount'           => null,
                 'date_of_issue'    => now(),

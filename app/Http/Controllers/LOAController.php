@@ -84,61 +84,75 @@ class LoaController extends Controller
      * Menyimpan LOA ke tabel yang sesuai dengan role
      */
     public function store(Request $request)
-{
-    try {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+
+            $loaModel = $this->getLoaModel();
+            if (!$loaModel) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+
+            // Validasi
+            $validator = Validator::make($request->all(), [
+                'paper_id'              => 'required|string|unique:' . (new $loaModel)->getTable(),
+                'paper_title'           => 'required|string',
+                'author_names'          => 'required|array|min:1|max:5',
+                'status'                => 'required|in:Accepted,Rejected',
+                'tempat_tanggal'        => 'required|string',
+                'signature_id'          => 'required|exists:signatures,id',
+                'theme_conference'      => 'required|string',
+                'date_place_conference' => 'required|string',
+                'picture'               => 'required|image|mimes:jpg,png,jpeg|max:2048',
+                'nama_penandatangan'    => 'required|string',
+                'jabatan_penandatangan' => 'required|string',
+
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            // Simpan gambar ke storage
+            $path = $request->file('picture')->store('loa_pictures', 'public');
+
+
+            // Simpan LOA
+            $loa = $loaModel::create([
+                'paper_id'       => $request->paper_id,
+                'paper_title'    => $request->paper_title,
+                'author_names'   => $request->author_names, // JSON jika di-cast di model
+                'status'         => $request->status,
+                'tempat_tanggal' => $request->tempat_tanggal,
+                'signature_id'   => $request->signature_id,
+                'created_by'     => $user->id,
+                'theme_conference' => $request->theme_conference,
+                'date_place_conference' => $request->date_place_conference,
+                'picture' => $path,
+                'nama_penandatangan' => $request->nama_penandatangan,
+                'jabatan_penandatangan' => $request->jabatan_penandatangan,
+            ]);
+
+            // // Jika LOA berstatus 'Accepted', generate Invoice
+            // if ($loa->status === 'Accepted') {
+            //     $this->createInvoice($loa); 
+            // }
+
+            return response()->json([
+                'message' => 'LOA created successfully',
+                'loa'     => $loa
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Error creating LOA', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Terjadi kesalahan',
+                'error'   => $e->getMessage()
+            ], 500);
         }
-
-        $loaModel = $this->getLoaModel();
-        if (!$loaModel) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        // Validasi
-        $validator = Validator::make($request->all(), [
-            'paper_id'        => 'required|string|unique:' . (new $loaModel)->getTable(),
-            'paper_title'     => 'required|string',
-            'author_names'    => 'required|array|min:1|max:5',
-            'status'          => 'required|in:Accepted,Rejected',
-            'tempat_tanggal'  => 'required|string',
-            'signature_id'    => 'required|exists:signatures,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Simpan LOA
-        $loa = $loaModel::create([
-            'paper_id'       => $request->paper_id,
-            'paper_title'    => $request->paper_title,
-            'author_names'   => $request->author_names, // JSON jika di-cast di model
-            'status'         => $request->status,
-            'tempat_tanggal' => $request->tempat_tanggal,
-            'signature_id'   => $request->signature_id,
-            'created_by'     => $user->id
-        ]);
-
-        // Jika LOA berstatus 'Accepted', generate Invoice
-        if ($loa->status === 'Accepted') {
-            $this->createInvoice($loa); 
-        }
-
-        return response()->json([
-            'message' => 'LOA created successfully',
-            'loa'     => $loa
-        ], 201);
-
-    } catch (\Exception $e) {
-        Log::error('Error creating LOA', ['error' => $e->getMessage()]);
-        return response()->json([
-            'message' => 'Terjadi kesalahan',
-            'error'   => $e->getMessage()
-        ], 500);
     }
-}
 
 
     /**
@@ -260,6 +274,7 @@ class LoaController extends Controller
                 'loa_id'       => $loa->id,
                 'created_by'   => $loa->created_by,
                 'signature_id' => $loa->signature_id,
+                'author_names' => $loa->author_names,
                 
                 // Boleh tambahkan field lain seperti
                 // 'institution' => null,

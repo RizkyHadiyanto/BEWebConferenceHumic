@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Validator;
 
 // class PaymentController extends Controller
 // {
@@ -113,8 +114,44 @@ class PaymentController extends Controller
             if (Auth::user()->role_id != 1 && $payment->created_by != Auth::id()) {
                 return response()->json(['message' => 'Not your payment'], 403);
             }
+            //bisa di update semuanya
+            // $payment->update($request->all());
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'received_from' => 'nullable|string|max:255',
+                'amount' => 'nullable|numeric|min:0',
+                'in_payment_of' => 'nullable|string|max:255',
+                'payment_date' => 'nullable|date',
+                'paper_id' => 'nullable|string|max:255',
+                'paper_title' => 'nullable|string|max:255',
+                'nama_penandatangan' => 'nullable|string|max:255',
+                'jabatan_penandatangan' => 'nullable|string|max:255',
+                'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
 
-            $payment->update($request->all());
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // Simpan file jika ada
+            if ($request->hasFile('picture')) {
+                $path = $request->file('picture')->store('payment_pictures', 'public');
+                $payment->picture = $path;
+            }
+
+            // Update data
+            $payment->fill($request->only([
+                'received_from',
+                'amount',
+                'in_payment_of',
+                'payment_date',
+                'paper_id',
+                'paper_title',
+                'nama_penandatangan',
+                'jabatan_penandatangan',
+            ]));
+
+            $payment->save();
 
             return response()->json(['message' => 'payment updated successfully', 'payment' => $payment], 200);
         } catch (\Exception $e) {

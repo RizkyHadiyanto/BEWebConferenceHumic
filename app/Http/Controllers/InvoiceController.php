@@ -266,6 +266,7 @@ class InvoiceController extends Controller
         }
     }
     
+    
 
     
     /**
@@ -289,15 +290,30 @@ class InvoiceController extends Controller
                 'email' => 'nullable|email|max:255',
                 'presentation_type' => 'nullable|in:Onsite,Online',
                 'member_type' => 'nullable|in:IEEE Member,IEEE Non Member',
+                'author_names' =>  'required|array|min:1|max:5',
                 'author_type' => 'nullable|in:Author,Student Author',
                 'amount' => 'nullable|numeric|min:0',
                 'date_of_issue' => 'nullable|date',
                 'virtual_account_id' => 'nullable|exists:virtual_accounts,id',
                 'bank_transfer_id' => 'nullable|exists:bank_transfers,id',
+                'picture' => 'required|image|mimes:jpg,png,jpeg|max:2048',
+                'nama_penandatangan' => 'required|string',
+                'jabatan_penandatangan' => 'required|string',
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // if ($validator->fails()) {
+            //     return response()->json(['errors' => $validator->errors()], 422);
+            // }
+            // // Simpan gambar ke storage
+            // $path = $request->file('picture')->store('loa_pictures', 'public');
+
+            if ($request->hasFile('picture')) {
+                $path = $request->file('picture')->store('invoice_pictures', 'public');
+                $invoice->picture = $path;
             }
 
             // Update kolom yang diizinkan
@@ -306,11 +322,15 @@ class InvoiceController extends Controller
                 'email',
                 'presentation_type',
                 'member_type',
+                'author_names',
                 'author_type',
                 'amount',
                 'date_of_issue',
                 'virtual_account_id',
                 'bank_transfer_id',
+                // 'picture',
+                'nama_penandatangan',
+                'jabatan_penandatangan',
                 'status'
             ]));
 
@@ -356,6 +376,7 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
+
     private function createPayment($invoice)
     {
         try {
@@ -367,7 +388,7 @@ class InvoiceController extends Controller
 
             $paymentModel::create([
                 'invoice_no'      => $invoice->invoice_no,
-                'received_from'   => $invoice->institution,
+                // 'received_from'   => $invoice->institution,
                 'amount'          => $invoice->amount,
                 'in_payment_of'   => 'Conference Registration for ' . ($loa->paper_title ?? 'Unknown'),
                 'payment_date'    => now(),

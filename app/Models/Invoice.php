@@ -25,7 +25,10 @@ class Invoice extends Model
         'signature_id',
         'virtual_account_id', 
         'bank_transfer_id',   
-        'created_by'
+        'created_by',
+        'picture',
+        'nama_penandatangan',
+        'jabatan_penandatangan'
     ];
 
     protected $casts = [
@@ -56,6 +59,12 @@ class Invoice extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    protected $appends = ['picture_url'];
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
     }
 }
 

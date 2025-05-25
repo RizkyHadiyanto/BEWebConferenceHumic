@@ -20,6 +20,9 @@ class Payment extends Model
         'paper_title',
         'signature_id',
         'created_by',
+        'picture',
+        'nama_penandatangan',
+        'jabatan_penandatangan'
     ];
 
     // Relasi ke Invoice (Payment berasal dari Invoice)
@@ -39,5 +42,9 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    
+    protected $appends = ['picture_url'];
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
+    }
 }

@@ -24,12 +24,16 @@ class InvoiceICICYTA extends Model
         'email',
         'presentation_type',
         'member_type',
+        'author_names',
         'author_type',
         'amount',
         'date_of_issue',
         'signature_id',
         'virtual_account_id',
         'bank_transfer_id',
+        'picture',
+        'nama_penandatangan',
+        'jabatan_penandatangan',
         'created_by',
         'status',
     ];
@@ -68,5 +72,11 @@ class InvoiceICICYTA extends Model
     public function payments()
     {
         return $this->hasMany(PaymentICICYTA::class, 'invoice_no', 'invoice_no');
+    }
+
+    protected $appends = ['picture_url'];
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
     }
 }
