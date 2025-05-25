@@ -111,7 +111,7 @@ class SignatureController extends Controller
         if ($request->hasFile('picture')) {
             if ($signature->picture && Storage::disk('public')->exists($signature->picture)) {
                 Storage::disk('public')->delete($signature->picture);
-            }
+            };
             $path = $request->file('picture')->store('signatures', 'public');
             $signature->picture = $path;
         }

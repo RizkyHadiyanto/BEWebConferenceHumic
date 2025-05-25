@@ -25,12 +25,12 @@ class VirtualAccount extends Authenticatable
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    protected static function boot()
-    {
-        parent::boot();
-        static::creating(function ($bankTransfer) {
-            $bankTransfer->token = Str::uuid();
-        });
-    }
+    // protected static function boot()
+    // {
+    //     parent::boot();
+    //     static::creating(function ($bankTransfer) {
+    //         $bankTransfer->token = Str::uuid();
+    //     });
+    // }
 }
 

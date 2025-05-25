@@ -94,7 +94,7 @@ class Loa extends Model
 
             $invoiceNumber = Invoice::count() + 1;
             $invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/{$conferenceCode}/" . date('Y');
-
+            $signature = Signature::find($loa->signature_id);
             Invoice::create([
                 'invoice_no' => $invoiceCode,
                 'loa_id' => $loa->id,
@@ -113,6 +113,9 @@ class Loa extends Model
                 'jabatan_penandatangan' => null,
                 'created_by' => $loa->created_by,
                 'signature_id' => $loa->signature_id,
+                'picture'          => $signature?->picture,
+                'nama_penandatangan'=> $signature?->nama_penandatangan,
+                'jabatan_penandatangan' => $signature?->jabatan_penandatangan,
                 'status' => 'Pending',
             ]);
 

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Signature;
+use App\Models\BankTransfer;
+use App\Models\VirtualAccount;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -122,18 +124,20 @@ class InvoiceController extends Controller
 
             // Validasi input
             $validator = Validator::make($request->all(), [
-                'status' => 'in:Pending,Paid,Unpaid',
+                'status' => 'in:Pending,Paid',
                 'institution' => 'nullable|string|max:255',
                 'email' => 'nullable|email|max:255',
                 'presentation_type' => 'nullable|in:Onsite,Online',
                 'member_type' => 'nullable|in:IEEE Member,IEEE Non Member',
-                'author_names' =>  'required|array|min:1|max:5',
+                'author_names' =>  'nullable|array|min:1|max:5',
                 'author_type' => 'nullable|in:Author,Student Author',
                 'amount' => 'nullable|numeric|min:0',
                 'date_of_issue' => 'nullable|date',
-                'signature_id'          => 'required|exists:signatures,id',
+                'signature_id'          => 'nullable|exists:signatures,id',
                 'virtual_account_id' => 'nullable|exists:virtual_accounts,id',
+                // 'nomor_virtual_akun' => 'nullable|string|unique:virtual_accounts,nomor_virtual_akun',
                 'bank_transfer_id' => 'nullable|exists:bank_transfers,id',
+                // 'beneficiary_bank_account_no' => 'nullable|string|unique:bank_transfers,beneficiary_bank_account_no',
                 // 'picture' => 'required|image|mimes:jpg,png,jpeg|max:2048',
                 // 'nama_penandatangan' => 'required|string',
                 // 'jabatan_penandatangan' => 'required|string',
@@ -148,10 +152,20 @@ class InvoiceController extends Controller
             // }
             // // Simpan gambar ke storage
             // $path = $request->file('picture')->store('loa_pictures', 'public');
-            $signature = Signature::find($request->signature_id);
-            if (!$signature) {
-                return response()->json(['message' => 'Signature not found'], 404);
-            }
+            // $signature = Signature::find($request->signature_id);
+            // if (!$signature) {
+            //     return response()->json(['message' => 'Signature not found'], 404);
+            // }
+
+            // $bankTransfer = BankTransfer::find($request->bank_transfer_id);
+            // if (!$bankTransfer) {
+            //     return response()->json(['message' => 'Bank Transfer not found'], 404);
+            // }
+
+            // $virtualAccount = VirtualAccount::find($request->virtual_account_id);
+            // if (!$virtualAccount) {
+            //     return response()->json(['message' => 'Virtual Account not found'], 404);
+            // }
 
             // Update kolom yang diizinkan
             $invoice->fill($request->only([
@@ -163,16 +177,74 @@ class InvoiceController extends Controller
                 'author_type',
                 'amount',
                 'date_of_issue',
-                'signature_id',
-                'virtual_account_id',
-                'bank_transfer_id',
+                // 'signature_id',
+                // 'virtual_account_id',
+                // 'nomor_virtual_akun',
+                // 'bank_transfer_id',
+                // 'beneficiary_bank_account_no',
                 'status'
             ]));
 
-            // Auto-fill dari Signature
-            $invoice->picture = $signature->picture;
-            $invoice->nama_penandatangan = $signature->nama_penandatangan;
-            $invoice->jabatan_penandatangan = $signature->jabatan_penandatangan;
+            // // Auto-fill dari Signature
+            // $invoice->picture = $signature->picture;
+            // $invoice->nama_penandatangan = $signature->nama_penandatangan;
+            // $invoice->jabatan_penandatangan = $signature->jabatan_penandatangan;
+            // #Beneficiary bank transfer
+            // $invoice->beneficiary_bank_account_no = $bankTransfer->beneficiary_bank_account_no;
+            // # Nomor virtual akun
+            // $invoice->nomor_virtual_akun = $virtualAccount->nomor_virtual_akun;
+
+            // // Ambil dan isi tambahan dari Signature (jika dikirim)
+            // if ($request->filled('signature_id')) {
+            //     $signature = Signature::find($request->signature_id);
+            //     if ($signature) {
+            //         $invoice->picture = $signature->picture;
+            //         $invoice->nama_penandatangan = $signature->nama_penandatangan;
+            //         $invoice->jabatan_penandatangan = $signature->jabatan_penandatangan;
+            //     }
+            // }
+
+            // // Ambil dan isi dari Virtual Account (jika dikirim)
+            // if ($request->filled('virtual_account_id')) {
+            //     $va = VirtualAccount::find($request->virtual_account_id);
+            //     if ($va) {
+            //         $invoice->nomor_virtual_akun = $va->nomor_virtual_akun;
+            //     }
+            // }
+
+            // // Ambil dan isi dari Bank Transfer (jika dikirim)
+            // if ($request->filled('bank_transfer_id')) {
+            //     $bt = BankTransfer::find($request->bank_transfer_id);
+            //     if ($bt) {
+            //         $invoice->beneficiary_bank_account_no = $bt->beneficiary_bank_account_no;
+            //     }
+            // }
+            if ($request->filled('virtual_account_id')) {
+                $va = VirtualAccount::find($request->virtual_account_id);
+                if ($va) {
+                    $invoice->virtual_account_id = $va->id;
+                    $invoice->nomor_virtual_akun = $va->nomor_virtual_akun;
+                }
+            }
+
+            if ($request->filled('bank_transfer_id')) {
+                $bt = BankTransfer::find($request->bank_transfer_id);
+                if ($bt) {
+                    $invoice->bank_transfer_id = $bt->id;
+                    $invoice->beneficiary_bank_account_no = $bt->beneficiary_bank_account_no;
+                }
+            }
+
+            if ($request->filled('signature_id')) {
+                $signature = Signature::find($request->signature_id);
+                if ($signature) {
+                    $invoice->signature_id = $signature->id;
+                    $invoice->picture = $signature->picture;
+                    $invoice->nama_penandatangan = $signature->nama_penandatangan;
+                    $invoice->jabatan_penandatangan = $signature->jabatan_penandatangan;
+                }
+            }
+
 
             $invoice->save();
 

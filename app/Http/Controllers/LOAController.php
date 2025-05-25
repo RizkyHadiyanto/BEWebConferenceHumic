@@ -118,7 +118,11 @@ class LoaController extends Controller
             }
             // // Simpan gambar ke storage
             // $path = $request->file('picture')->store('loa_pictures', 'public');
+
+            // Menggunakan ini adanya Fallback
             $signature = Signature::find($request->signature_id);
+
+            // $signature = Signature::find($request->signature_id ?? $invoice->signature_id);
             if (!$signature) {
                 return response()->json(['message' => 'Signature not found'], 404);
             }
@@ -294,7 +298,7 @@ class LoaController extends Controller
                 // dsb.
 
                 // Status invoice default 'Unpaid' misalnya
-                'status'       => 'Unpaid'
+                'status'       => 'Pending'
             ]);
 
             Log::info("Invoice Created Successfully in [{$invoiceModel}] => ID: " . $invoice->id);

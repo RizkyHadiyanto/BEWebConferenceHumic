@@ -28,6 +28,7 @@ class LoaICODSA extends Model
         'picture',
         'nama_penandatangan',
         'jabatan_penandatangan'
+        
     ];
 
     protected $casts = [
@@ -51,7 +52,7 @@ class LoaICODSA extends Model
     {
         return $this->hasOne(InvoiceICODSA::class, 'loa_id');
     }
-    
+
     protected $appends = ['picture_url'];
     public function getPictureUrlAttribute()
     {
@@ -82,6 +83,8 @@ class LoaICODSA extends Model
         });
     }
 
+   
+
     protected static function generateInvoice($loa)
     {
         try {
@@ -92,10 +95,11 @@ class LoaICODSA extends Model
             // $conferenceCode = match ($role_id) {
             //     2 => 'ICODSA',
             //     default => 'CONF',
-            // };
+            // }; 
             // Contoh penomoran invoice sederhana
             $invoiceNumber = InvoiceICODSA::count() + 1;
             $invoiceCode  = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT).'/INV/ICODSA/'.date('Y');
+            $signature = Signature::find($loa->signature_id);
             //$invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/{$conferenceCode}/" . date('Y');
 
             InvoiceICODSA::create([
@@ -114,6 +118,9 @@ class LoaICODSA extends Model
                 'created_by'       => $loa->created_by,
                 'signature_id'     => $loa->signature_id,
                 'status'           => 'Pending',
+                'picture'          => $signature?->picture,
+                'nama_penandatangan'=> $signature?->nama_penandatangan,
+                'jabatan_penandatangan' => $signature?->jabatan_penandatangan,
             ]);
         } catch (\Exception $e) {
             Log::error('Error generating invoice for LOA ICODSA', ['error' => $e->getMessage()]);

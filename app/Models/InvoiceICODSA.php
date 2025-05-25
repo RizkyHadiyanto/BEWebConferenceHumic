@@ -29,12 +29,18 @@ class InvoiceICODSA extends Model
         'date_of_issue',
         'signature_id',
         'virtual_account_id',
+        'nomor_virtual_akun',
         'bank_transfer_id',
+        'beneficiary_bank_account_no',
         'picture',
         'nama_penandatangan',
         'jabatan_penandatangan',
         'created_by',
         'status'
+    ];
+
+    protected $casts = [
+        'author_names' => 'array',
     ];
 
     // Relasi ke LOAICODSA

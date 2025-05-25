@@ -51,7 +51,7 @@ class LoaICICYTA extends Model
     {
         return $this->hasOne(InvoiceICICYTA::class, 'loa_id');
     }
-    
+
     protected $appends = ['picture_url'];
     public function getPictureUrlAttribute()
     {
@@ -95,6 +95,7 @@ class LoaICICYTA extends Model
             $invoiceNumber = InvoiceICICYTA::count() + 1;
             // $invoiceCode  = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT).'/INV/ICICYTA/'.date('Y');
             $invoiceCode = str_pad($invoiceNumber, 3, '0', STR_PAD_LEFT) . "/INV/{$conferenceCode}/" . date('Y');
+            $signature = Signature::find($loa->signature_id);
             InvoiceICICYTA::create([
                 'invoice_no'       => $invoiceCode,
                 'loa_id'           => $loa->id,
@@ -108,12 +109,13 @@ class LoaICICYTA extends Model
                 'date_of_issue'    => now(),
                 'virtual_account_id' => null,
                 'bank_transfer_id'   => null,
-                'picture'          => null,
-                'nama_penandatangan'=> null,
-                'jabatan_penandatangan' => null,
+                'status'           => 'Pending',
+                'picture'          => $signature?->picture,
+                'nama_penandatangan'=> $signature?->nama_penandatangan,
+                'jabatan_penandatangan' => $signature?->jabatan_penandatangan,
                 'created_by'       => $loa->created_by,
                 'signature_id'     => $loa->signature_id,
-                'status'           => 'Pending',
+                
             ]);
         } catch (\Exception $e) {
             Log::error('Error generating invoice for LOA ICICYTA', ['error' => $e->getMessage()]);

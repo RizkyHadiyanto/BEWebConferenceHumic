@@ -26,13 +26,13 @@ class BankTransfer extends Authenticatable
     ];
 
     // Generate Token saat membuat akun
-    protected static function boot()
-    {
-        parent::boot();
-        static::creating(function ($bankTransfer) {
-            $bankTransfer->token = Str::uuid();
-        });
-    }
+    // protected static function boot()
+    // {
+    //     parent::boot();
+    //     static::creating(function ($bankTransfer) {
+    //         $bankTransfer->token = Str::uuid();
+    //     });
+    // }
     public function user()
     {
         return $this->belongsTo(User::class, 'created_by');

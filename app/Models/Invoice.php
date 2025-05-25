@@ -24,7 +24,9 @@ class Invoice extends Model
         'status',
         'signature_id',
         'virtual_account_id', 
-        'bank_transfer_id',   
+        'nomor_virtual_akun',
+        'bank_transfer_id',
+        'beneficiary_bank_account_no',   
         'created_by',
         'picture',
         'nama_penandatangan',
@@ -32,8 +34,12 @@ class Invoice extends Model
     ];
 
     protected $casts = [
-        'date_of_issue' => 'date'
+        'author_names' => 'array',
     ];
+
+    // protected $casts = [
+    //     'date_of_issue' => 'date'
+    // ];
 
     // App\Models\Invoice
     public function loa()
