@@ -297,24 +297,42 @@ class InvoiceController extends Controller
 
             // Ambil data LOA (pastikan relasi "public function loa()" di model invoice)
             $loa = $invoice->loa;
-
-            $paymentModel::create([
+            $signature = Signature::find($invoice->signature_id);
+            $payment = $paymentModel::where('invoice_no', $invoice->invoice_no)->first();
+            
+            $data = [
                 'invoice_no'      => $invoice->invoice_no,
                 // 'received_from'   => $invoice->institution,
-                'amount'          => $invoice->amount,
-                'in_payment_of'   => 'Conference Registration for ' . ($loa->paper_title ?? 'Unknown'),
-                'payment_date'    => now(),
-                'paper_id'        => $loa->paper_id ?? '-',
-                'paper_title'     => $loa->paper_title ?? '-',
-                'signature_id'    => $invoice->signature_id,
-                'created_by'      => $invoice->created_by,
+                'amount'            => $invoice->amount,
+                'in_payment_of'     => 'Conference Registration for ' . ($loa->paper_title ?? 'Unknown'),
+                'payment_date'      => now(),
+                'paper_id'          => $loa->paper_id ?? '-',
+                'paper_title'       => $loa->paper_title ?? '-',
+                'signature_id'      => $invoice->signature_id,
+                'picture'           => $signature->picture,
+                'nama_penandatangan'    => $signature->nama_penandatangan,
+                'jabatan_penandatangan' => $signature->jabatan_penandatangan,                'created_by'      => $invoice->created_by,
                 // created_at / updated_at diisi otomatis oleh Eloquent, 
                 // jadi baris berikut opsional kecuali Anda ingin override
+                'created_by'              => $invoice->created_by,
                 'created_at'      => now(),
                 'updated_at'      => now(),
-            ]);
+            ];
+
+            if ($payment) {
+            // Update yang sudah ada
+            $payment->update($data);
+            Log::info("Payment updated for invoice: " . $invoice->invoice_no);
+            } else {
+                // Buat baru kalau belum ada
+                $paymentModel::create(array_merge($data, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]));
 
             Log::info("Payment auto-generated for invoice: " . $invoice->invoice_no);
+            }
+
         } catch (\Exception $e) {
             Log::error('Error creating Payment', ['error' => $e->getMessage()]);
         }

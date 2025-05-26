@@ -65,6 +65,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
+    
 
     public function update(Request $request, $id)
     {
@@ -102,17 +103,7 @@ class PaymentController extends Controller
 
             // Simpan file jika ada
             // $signature = Signature::find($request->signature_id);
-            if ($request->filled('signature_id')) {
-            $signature = Signature::find($request->signature_id);
-            if (!$signature) {
-                return response()->json(['message' => 'Signature not found'], 404);
-            }
-
-    $payment->signature_id = $signature->id;
-    $payment->picture = $signature->picture;
-    $payment->nama_penandatangan = $signature->nama_penandatangan;
-    $payment->jabatan_penandatangan = $signature->jabatan_penandatangan;
-}
+            
 
             // Update data
             $payment->fill($request->only([
@@ -125,6 +116,27 @@ class PaymentController extends Controller
                 // 'signature_id'
             ]));
 
+            // if ($request->filled('signature_id')) {
+            //     $signature = Signature::find($request->signature_id);
+            //     if ($signature) {
+            //         $payment->signature_id = $signature->id;
+            //         $payment->picture = $signature->picture;
+            //         $payment->nama_penandatangan = $signature->nama_penandatangan;
+            //         $payment->jabatan_penandatangan = $signature->jabatan_penandatangan;
+            //     }
+            // }
+
+            // if ($request->filled('signature_id')) {
+            // $signature = Signature::find($request->signature_id);
+            // if (!$signature) {
+            //     return response()->json(['message' => 'Signature not found'], 404);
+            // }
+
+            //     $payment->signature_id = $signature->id;
+            //     $payment->picture = $signature->picture;
+            //     $payment->nama_penandatangan = $signature->nama_penandatangan;
+            //     $payment->jabatan_penandatangan = $signature->jabatan_penandatangan;
+            // }
             if ($request->filled('signature_id')) {
                 $signature = Signature::find($request->signature_id);
                 if ($signature) {

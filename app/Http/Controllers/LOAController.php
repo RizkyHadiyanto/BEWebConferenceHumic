@@ -285,10 +285,16 @@ class LoaController extends Controller
                 date('Y')
             );
             $signature = Signature::find($loa->signature_id);
+
+            // Cek apakah sudah ada invoice untuk LOA ini
+            $invoice = $invoiceModel::where('loa_id', $loa->id)->first();
+            
             // Simpan invoice di tabel yang sesuai
-            $invoice = $invoiceModel::create([
+            $data=[
                 'invoice_no'   => $invoiceNumber,
                 'loa_id'       => $loa->id,
+                'paper_id'     => $loa->paper_id,
+                'paper_title'  => $loa->paper_title,
                 'created_by'   => $loa->created_by,
                 'signature_id' => $loa->signature_id,
                 'author_names' => $loa->author_names,
@@ -305,9 +311,22 @@ class LoaController extends Controller
                 'jabatan_penandatangan' => $signature->jabatan_penandatangan,
                 'created_by'       => $loa->created_by,
                 'signature_id'     => $loa->signature_id,
-            ]);
+            ];
+            if ($invoice) {
+                $invoice->update($data);
+                Log::info("Invoice updated for LOA ID: " . $loa->id);
+            } else {
+                // Buat nomor invoice baru
+                $data['invoice_no'] = sprintf(
+                    '%03d/INV/%s/%s',
+                    $invoiceModel::count() + 1,
+                    $roleBasedCode,
+                    date('Y')
+                );
 
-            Log::info("Invoice Created Successfully in [{$invoiceModel}] => ID: " . $invoice->id);
+                $invoice = $invoiceModel::create($data);
+                Log::info("Invoice created for LOA ID: " . $loa->id);
+            }
         } catch (\Exception $e) {
             Log::error('Error creating Invoice', ['error' => $e->getMessage()]);
         }

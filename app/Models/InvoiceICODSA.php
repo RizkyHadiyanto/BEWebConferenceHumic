@@ -19,6 +19,8 @@ class InvoiceICODSA extends Model
     protected $fillable = [
         'invoice_no',
         'loa_id',
+        'paper_id',
+        'paper_title',
         'institution',
         'email',
         'presentation_type',

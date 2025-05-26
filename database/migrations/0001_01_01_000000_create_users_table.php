@@ -114,6 +114,8 @@ return new class extends Migration
             $table->id();
             $table->string('invoice_no')->unique();
             $table->foreignId('loa_id')->constrained('loas_icodsa')->onDelete('cascade');
+            $table->string('paper_id')->nullable();
+            $table->string('paper_title')->nullable();
             $table->string('institution')->nullable();
             $table->string('email')->nullable();
             $table->string('presentation_type')->nullable();
@@ -179,6 +181,8 @@ return new class extends Migration
             $table->id();
             $table->string('invoice_no')->unique();
             $table->foreignId('loa_id')->constrained('loas_icicyta')->onDelete('cascade');
+            $table->string('paper_id')->nullable();
+            $table->string('paper_title')->nullable();
             $table->string('institution')->nullable();
             $table->string('email')->nullable();
             $table->string('presentation_type')->nullable();

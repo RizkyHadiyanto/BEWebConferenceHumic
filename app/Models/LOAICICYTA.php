@@ -58,7 +58,10 @@ class LoaICICYTA extends Model
         return $this->picture ? asset('storage/' . $this->picture) : null;
     }
     
-    /**
+    
+}
+
+/**
      * Jika Anda ingin menyalin logika generate invoice otomatis untuk ICICYTA,
      * silakan sesuaikan.
      */
@@ -121,4 +124,3 @@ class LoaICICYTA extends Model
     //         Log::error('Error generating invoice for LOA ICICYTA', ['error' => $e->getMessage()]);
     //     }
     // }
-}
