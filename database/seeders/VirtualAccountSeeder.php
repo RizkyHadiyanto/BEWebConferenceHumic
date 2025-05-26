@@ -16,7 +16,7 @@ class VirtualAccountSeeder extends Seeder
                 'account_holder_name' => 'Universitas Telkom',
                 'bank_name' => 'Bank Negara Indonesia (BNI) ',
                 'bank_branch' => 'Perintis Kemerdekaan',
-                'token' => Str::uuid(),
+                
                 'created_by' => 1, // Super Admin
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -26,7 +26,7 @@ class VirtualAccountSeeder extends Seeder
                 'account_holder_name' => 'PT. Telkom Indonesia',
                 'bank_name' => 'Bank BCA',
                 'bank_branch' => 'Jakarta',
-                'token' => Str::uuid(),
+                
                 'created_by' => 1, // Super Admin
                 'created_at' => now(),
                 'updated_at' => now(),

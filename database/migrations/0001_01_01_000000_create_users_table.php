@@ -66,7 +66,7 @@ return new class extends Migration
             $table->string('account_holder_name');
             $table->string('bank_name');
             $table->string('bank_branch');
-            $table->uuid('token')->unique(); // Unique identifier untuk keamanan
+            // $table->uuid('token')->unique(); // Unique identifier untuk keamanan
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
@@ -82,7 +82,7 @@ return new class extends Migration
             $table->string('bank_address')->nullable();
             $table->string('city')->nullable();
             $table->string('country');
-            $table->uuid('token')->unique(); 
+            // $table->uuid('token')->unique(); 
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade'); 
             $table->timestamps();
         });

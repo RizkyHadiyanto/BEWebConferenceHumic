@@ -20,7 +20,7 @@ class BankTransferSeeder extends Seeder
                 'bank_address' => 'Jl. R.E. Martadinata No.103, Kota Bandung, Jawa Barat, Indonesia, 40115',
                 'city' => 'Bandung',
                 'country' => 'Indonesia',
-                'token' => Str::uuid(),
+                
                 'created_by' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -34,7 +34,7 @@ class BankTransferSeeder extends Seeder
                 'bank_address' => 'Jl. R.E. Martadinata No.103, Kota Bandung, Jawa Barat, Indonesia, 40115',
                 'city' => 'Bandung',
                 'country' => 'Indonesia',
-                'token' => Str::uuid(),
+                
                 'created_by' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
