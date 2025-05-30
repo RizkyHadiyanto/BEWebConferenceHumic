@@ -21,4 +21,12 @@ class Signature extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    protected $appends = ['picture_url'];
+
+    public function getPictureUrlAttribute()
+    {
+        return $this->picture ? asset('storage/' . $this->picture) : null;
+    }
+
 }

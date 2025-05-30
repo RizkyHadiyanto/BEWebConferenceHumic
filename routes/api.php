@@ -14,8 +14,12 @@ use App\Http\Controllers\LOAController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminController;
-use App\Models\Invoice;
 
+
+
+Route::options('{any}', function () {
+    return response()->json(['status' => 'CORS preflight passed']);
+})->where('any', '.*');
 
 // AUTH
 Route::post('/login', [AuthController::class, 'login']);
