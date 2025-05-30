@@ -150,10 +150,6 @@ class SignatureController extends Controller
 }
 
     
-
-
-
-
     
     public function destroy($id)
     {
@@ -175,4 +171,5 @@ class SignatureController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan', 'error' => $e->getMessage()], 500);
         }
     }
+    
 }

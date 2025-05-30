@@ -54,23 +54,7 @@ Route::middleware(['auth:sanctum', RoleMiddleware::class.':1'])->group(function 
     Route::post('/signatures/update/{id}', [SignatureController::class, 'update']);
     Route::delete('/signatures/delete/{id}', [SignatureController::class, 'destroy']);
 
-    // LOA (CRUD) - pakai LoaController, tapi model = Loa
-    // Route::get('/loas', [LoaController::class, 'index']);
-    // Route::post('/loas/create', [LoaController::class, 'store']);
-    // Route::get('/loas/{id}', [LoaController::class, 'show']);
-    // Route::put('/loas/update/{id}', [LoaController::class, 'update']);
-    // Route::delete('/loas/delete/{id}', [LoaController::class, 'destroy']);
-
-    // Invoices (CRUD) - pakai InvoiceController, model = Invoice
-    // Route::get('/invoices', [InvoiceController::class, 'index']);
-    // Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
-    // Route::put('/invoices/{id}', [InvoiceController::class, 'update']);
-    // (Jika perlu: store, destroy, dll. - sesuaikan)
-
-    // Payments (CRUD) - pakai PaymentController, model = Payment
-    // Route::get('/payments', [PaymentController::class, 'index']);
-    // Route::get('/payments/{id}', [PaymentController::class, 'show']);
-    // (Jika perlu: store, update, destroy, dsb.)
+   
 });
 
 
