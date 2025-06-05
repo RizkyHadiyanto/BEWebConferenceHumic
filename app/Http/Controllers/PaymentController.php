@@ -43,6 +43,10 @@ class PaymentController extends Controller
         try {
             $paymentModel = $this->getPaymentModel();
             $payments = $paymentModel::all();
+            if (!$paymentModel) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+
             return response()->json($payments, 200);
         } catch (\Exception $e) {
             Log::error('Error retrieving Payments', ['error' => $e->getMessage()]);
